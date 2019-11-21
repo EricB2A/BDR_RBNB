@@ -5,7 +5,7 @@ USE airbnb;
 
 
 
-CREATE TABLE messages(
+CREATE TABLE message (
     id PRIMARY KEY AUTO_INCREMENT,
     contenu VARCHAR(500),
     location_id INT,
@@ -14,7 +14,7 @@ CREATE TABLE messages(
     FOREIGN KEY (author_id) REFERENCES personnes(id)
     
 );
-CREATE TABLE review(
+CREATE TABLE review (
     id INT PRIMARY KEY AUTO_INCREMENT,
     note SMALLINT, -- CI: à limité à 5 ou 10 à voir
     commentaire VARCHAR(500)
@@ -50,8 +50,8 @@ CREATE TABLE adresse (
 );
 CREATE TABLE personne (
     id INT PRIMARY KEY AUTO_INCREMENT,
-    nom VARCHAR(30),
-    prenom VARCHAR(30),
+    nom VARCHAR(50),
+    prenom VARCHAR(50),
     email VARCHAR(254), -- => rfc5321
     mot_de_Passe VARCHAR(32),
     adresse_id INT,
@@ -80,7 +80,7 @@ CREATE TABLE  bien_immobilier (
    FOREIGN KEY (proprietaire_id) REFERENCES personne(id)
 );
 
-CREATE TABLE locations(
+CREATE TABLE location (
     id PRIMARY KEY AUTO_INCREMENT,
     date_arrivee DATE, -- changé de date
     duree INT,
@@ -89,5 +89,14 @@ CREATE TABLE locations(
     bien_immo_id
     FOREIGN KEY (locataire_id) REFERENCES personnes(id)
     FOREIGN KEY (bien_immo_id) REFERENCES bien_immobilier(id)
-    
 );
+CREATE TABLE type_fourniture(
+    nom VARCHAR(50) PRIMARY KEY
+);
+
+CREATE TABLE fourinture (
+   id INT AUTO_INCREMENT,
+   description TEXT,
+   PRIMARY KEY id
+);
+
