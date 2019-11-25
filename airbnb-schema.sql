@@ -2,40 +2,16 @@ DROP SCHEMA IF EXISTS airbnb;
 CREATE SCHEMA airbnb;
 USE airbnb;
 
-
-
-
-CREATE TABLE message (
-    id PRIMARY KEY AUTO_INCREMENT,
-    contenu VARCHAR(500),
-    location_id INT,
-    author_id INT
-    FOREIGN KEY (location_id) REFERENCES locations(id)
-    FOREIGN KEY (author_id) REFERENCES personnes(id)
-    
-);
-CREATE TABLE review (
-    id INT PRIMARY KEY AUTO_INCREMENT,
-    note SMALLINT, -- CI: à limité à 5 ou 10 à voir
-    commentaire VARCHAR(500)
-    location_id INT,
-    FOREIGN KEY (location_id) REFERENCES locations(id)
-);
-
-
---
-
 CREATE TABLE pays (
    nom VARCHAR(50),
    PRIMARY KEY (nom)
 );
 
 CREATE TABLE commune (
-   nom VARCHAR(50),
+   nom VARCHAR(50) PRIMARY KEY,
    etat VARCHAR(50),
-   pays_id VARCHAR(50) NOT NULL,
-   PRIMARY KEY (nom),
-   FOREIGN KEY (pays_id) REFERENCES pays(pays_id)
+   pays_nom VARCHAR(50) NOT NULL,
+   FOREIGN KEY (pays_nom) REFERENCES pays(nom)
 );
 
 CREATE TABLE adresse (
@@ -55,48 +31,65 @@ CREATE TABLE personne (
     email VARCHAR(254), -- => rfc5321
     mot_de_Passe VARCHAR(32),
     adresse_id INT,
-    genre ENUM('Homme', 'Femme', 'Agender', 'Pangender', 'Androgyne', 'Genre fluide' )
+    genre ENUM('Homme', 'Femme', 'Agender', 'Pangender', 'Androgyne', 'Genre fluide' ),
     FOREIGN KEY (adresse_id) REFERENCES adresse(id)
 );
 
 CREATE TABLE type_bien (
-   nom VARCHAR(50),
-   PRIMARY KEY nom
+   nom VARCHAR(50) PRIMARY KEY
 );
 
 CREATE TABLE  bien_immobilier (
-   id INT AUTO_INCREMENT,
+   id INT AUTO_INCREMENT PRIMARY KEY,
    adresse_id INT,
    type_bien_nom VARCHAR(50),
    proprietaire_id INT,
    taille SMALLINT, -- en m^2
    capacite SMALLINT, -- n° de places
-   description TEXT,
+   description VARCHAR(10000),
    tarif_journalier DECIMAL(6,2) NOT NULL,
    charges DECIMAL(6,2) NOT NULL,
-   PRIMARY KEY (id),
-   FOREIGN KEY (adresse_id) REFERENCES adresse(id)
-   FOREIGN KEY (type_bien_nom) REFERENCES type_bien(nom)
+   FOREIGN KEY (adresse_id) REFERENCES adresse(id),
+   FOREIGN KEY (type_bien_nom) REFERENCES type_bien(nom),
    FOREIGN KEY (proprietaire_id) REFERENCES personne(id)
 );
 
 CREATE TABLE location (
-    id PRIMARY KEY AUTO_INCREMENT,
+    id INT PRIMARY KEY AUTO_INCREMENT,
     date_arrivee DATE, -- changé de date
     duree INT,
     estConfirme BOOLEAN,
-    locataire_id,
-    bien_immo_id
-    FOREIGN KEY (locataire_id) REFERENCES personnes(id)
+    locataire_id INT,
+    bien_immo_id INT,
+    FOREIGN KEY (locataire_id) REFERENCES personne(id),
     FOREIGN KEY (bien_immo_id) REFERENCES bien_immobilier(id)
 );
 CREATE TABLE type_fourniture(
     nom VARCHAR(50) PRIMARY KEY
 );
 
-CREATE TABLE fourinture (
-   id INT AUTO_INCREMENT,
-   description TEXT,
-   PRIMARY KEY id
+CREATE TABLE fourniture (
+   id INT AUTO_INCREMENT PRIMARY KEY,
+   description VARCHAR(10000),
+   bien_immo_id INT,
+   nom_fourniture VARCHAR(50),
+   FOREIGN KEY (nom_fourniture) REFERENCES type_fourniture(nom),
+   FOREIGN KEY (bien_immo_id) REFERENCES bien_immobilier(id)
 );
 
+CREATE TABLE message (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    contenu VARCHAR(500),
+    location_id INT,
+    author_id INT,
+    FOREIGN KEY (location_id) REFERENCES location(id),
+    FOREIGN KEY (author_id) REFERENCES personne(id)
+    
+);
+CREATE TABLE review (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    note SMALLINT, -- CI: à limité à 5 ou 10 à voir
+    commentaire VARCHAR(500),
+    location_id INT,
+    FOREIGN KEY (location_id) REFERENCES locations(id)
+);
