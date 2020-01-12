@@ -3,6 +3,8 @@ from cli.cli_manager import Cli
 from config import Config
 from db import EntityManager
 from utils.path import get_config_path
+import logging
+logging.basicConfig(format='%(asctime)s %(levelname)-8s %(message)s', level=logging.DEBUG)
 
 def boot():
    pass
@@ -17,9 +19,12 @@ def render(config, db):
    cli.run()
 
 def run():
-   config = Config(get_config_path())
-   config.load()
+   logging.debug("Starting app")
+   logging.debug("Parsing config")
+   config = Config()
+   config.load(get_config_path())
 
-   entity_manager = EntityManager(config.db)
+   entity_manager = EntityManager()
    entity_manager.boot()
+   logging.debug("IS STILL CONNECTED: {}".format(entity_manager.conn))
    return render(config, entity_manager)

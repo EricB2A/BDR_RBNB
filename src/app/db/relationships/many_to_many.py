@@ -1,4 +1,4 @@
 from .relationship import Relationship
 
-class OneToMany(Relationship):
+class ManyToMany(Relationship):
    pass
