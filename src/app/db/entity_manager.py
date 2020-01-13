@@ -3,12 +3,14 @@ import mysql.connector
 from mysql.connector import errorcode
 from config import Config
 import logging
+
+
 @utils.singleton
 class EntityManager:
    #__metaclass__ = utils.Singleton
 
    config = None
-   entities = []
+   entities = {}
    conn = None
    db = None
 
@@ -28,7 +30,15 @@ class EntityManager:
 
    def boot(self):
       self._connect()
-      self._build_entity_list()
+   def boot_relationships(self):
+      if not self.entities:
+         raise Exception("No entities registered in entity manager")
+
+      for name, entity in self.entities.items():
+         for rname, relationship in entity.relationships.items():
+            local_entity = self.entities[relationship.local_entity_name]
+            remote_entity = self.entities[relationship.remote_entity_name]
+            relationship.boot(local_entity, remote_entity)
 
    def create_database(self):
       DB_NAME = self.db_name
@@ -81,21 +91,23 @@ class EntityManager:
          if err.errno == errorcode.ER_BAD_DB_ERROR:
             print("Database does not exist")
 
-   def _build_entity_list(self):
-      pass
-
+   def set_entities(self, entity_registrar):
+      self.entities = entity_registrar
+   
    def get_all_entities(self):
-      pass
+      return self.entities
 
-   def get_db():
-      return this.conn
+   def get_db(self):
+      return self.conn
 
-   @staticmethod
-   def get_entity(entity_name):
+   def get_entity(self, entity_name):
       """
       Dynamically get a class for an entity
       """
-      pass
+      if entity_name in self.entities.keys():
+         return self.entities[entity_name]
+      else:
+         return False
 
    def __del__(self):
       if self.conn is not None and self.conn.is_connected():

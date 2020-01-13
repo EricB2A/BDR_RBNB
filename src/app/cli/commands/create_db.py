@@ -17,7 +17,7 @@ class CreateDb(Command):
       Create a new database
       Usage: {}
 
-      Exmaple usage: {}
+      Exmaple: {}
       """.format(
          command_executable,
          usage,

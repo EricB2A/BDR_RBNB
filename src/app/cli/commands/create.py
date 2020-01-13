@@ -3,39 +3,54 @@ from db.entity_manager import EntityManager
 from db.relationships.many_to_many import ManyToMany
 from db.relationships.one_to_many import OneToMany
 import sys
+import logging
+import inquirer
 
+def ask(*args):
+   return input("Wassup >")
 class Create(Command):
    def __init__(self, *args, **kwargs):
-      super(*args, **kwargs)
+      super().__init__(*args, **kwargs)
       self.entity_manager = EntityManager()
       
    def help(self):
       
       entities_available = ""
-      for e in EntityManager.get_all_entities():
-         entities_available += ("\t - {}". e.__name__) + "\n"
+      print(EntityManager.get_all_entities())
+      for name in EntityManager.get_all_entities():
+         entities_available += "\t - " + name + "\n"
 
-      command_executable = "{} {} create".format(sys.executable, sys.argv[0])
-      usage = "{} [entity name]".format(command_executable)
+      command_executable = "{} {}".format(sys.executable, sys.argv[0])
+      usage = "{} create [entity name]".format(command_executable)
       print("""
-      Create a new entity (location, user, etc...)
-      You will be prompted to complete the necessary fields, once you selected an entity
-      Usage: {}
-      Available entities: 
-      {}
+Create a new entity (location, user, etc...)
+You will be prompted to complete the necessary fields, once you selected an entity
+Usage: {}
+Available entities: 
+{}
 
-      Exmaple usage: {} {}
+Exmaple usage: 
       """.format(
-         command_executable,
          usage,
          entities_available
       ))
 
    def run(self, *args):
-      entity_name = kwargs[0]
+      if len(args) < 1:
+         return self.help()
+      entity_name = args[0]
       entity = self.entity_manager.get_entity(entity_name)
-      for field in entity.fields:
-         setattr(entity, field, ask())
+      logging.debug("EM: %s", self.entity_manager)
+      logging.debug("Available entities: %s", self.entity_manager.get_all_entities())
+      if not entity:
+         print("Couldn't find the class you are looking for")
+         return self.help()
+      entity = entity()
+      
+      print("New {}:\n\n".format(entity.__name__))
+
+      self.ask_for_fields(entity)
+
       for relationship in entity.relationships:
          if isinstance(relationship, ManyToMany):
             pass
@@ -45,4 +60,11 @@ class Create(Command):
 
       entity.save()
       print("New {} created succesfully".format(entity_name))
+
+   def ask_for_fields(self, entity):
+      questions = map(lambda f: inquirer.Text(f, message="{}".format(f)), entity.fields)
+      answers = inquirer.prompt(questions)
+      logging.debug("Creating entity (%s) with values %s", entity, answers)
+      for field, value in answers.items():
+         setattr(entity, field, value)
       
