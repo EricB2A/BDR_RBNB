@@ -21,11 +21,18 @@ class Entity:
    fields = {}
    relationships = {}
    manager = None
+
    @property
    def db(self):
+      """
+      Turns out singletons can't get accessed on init of a class
+      So simple hack, creating a property that accesses the singleton
+      and getting the wanted property
+      """
       em = EntityManager()
       db = em.get_db()
       return db
+
    @property
    def class_name(self):
       return self.__class__.__name__.lower()
@@ -47,15 +54,7 @@ class Entity:
       return hasattr(self._data,self.key_name)
 
    def __init__(self, **fields):
-
-      # build relationship mapping
-      # fill the entity with all the fields
       self._fill(**fields)
-      #em = EntityManager()
-      #self.manager = em
-      #logging.debug("Instantiating new %s, EM: %s", self.__class__, em)
-
-      #self.db = em.conn
       
    @classmethod
    def build(cls, **fields):
@@ -67,14 +66,21 @@ class Entity:
       self._dirty = filter(lambda f : f in self.fields.keys(), fields)
       self._relationships = filter(lambda f : f in self.relationships.keys(), fields)
 
+   def fresh(self):
+      if not self.exists:
+         return self(**self._dirty)
+      else:
+         self._find(self.key)
+
    @classmethod
-   def find(cls, id):
+   def find(cls, id = None):
       instance = cls()
       return instance._find(id)
 
-   def _find(self, id):
+   def _find(self, id = None):
       def quote(v):
          return "`"+v+"`"
+
       fields = list(self.fields.keys())
 
       if self.key_name not in fields:
@@ -82,21 +88,24 @@ class Entity:
 
       fields = map(quote, fields)
 
-      
-
-      query = "SELECT {} from {} WHERE ".format(", ".join(fields),self.table_name) #TODO don't select *......
+      query = "SELECT {} from {} ".format(", ".join(fields),self.table_name) #TODO don't select *......
       db = self.db
       cursor = db.cursor(dictionary=True)
 
       if isinstance(id, list):
-         query += "{} in ({})".format(self.key, ", ".join(id))
+         query += "WHERE {} in ({})".format(self.key, ", ".join(id))
          logging.debug("QUERY: %s", query)
          cursor.execute(query)
          result = cursor.fetchall()
          logging.debug("FOUND: %s", result)
          return map(lambda x: self.build(**x), result)
+      elif id is None:
+         cursor.execute(query)
+         result = cursor.fetchall()
+         logging.debug("FOUND: %s", result)
+         return map(lambda x: self.build(**x), result)
       else:
-         query += "{} = {}".format(self.key_name, id)
+         query += "WHERE {} = {}".format(self.key_name, id)
          logging.debug("QUERY: %s", query)
          cursor.execute(query)
          result = cursor.fetchone()
@@ -111,11 +120,12 @@ class Entity:
 
    def delete(self):
       if not self.exists:
-         return True
+         return False
 
-      sql = "DELETE from {} WHERE {}={}".format(self.table_name, self.key_name, self.key)
+      sql = "DELETE from {} WHERE `{}` = {}".format(self.table_name, self.key_name, self.key)
       db = self.db
       cursor = db.cursor()
+      logging.debug("QUERY: %s", sql)
       cursor.execute(sql)
       db.commit()
       if cursor.rowcount > 0:
