@@ -9,12 +9,12 @@ from mysql.connector.custom_types import HexLiteral
 
 NUMERIC_TYPES = (int, float, Decimal, HexLiteral)
 
-class Entity:
+class Entity(object):
    """
    Meta class for all entities
    """
-   _dirty = {}
-   _data = {}
+   _dirty = {} #data before being processed
+   _data = {} #data that is retrieved from db and secure hehe
 
    _table_name = None
    _key_name = None
@@ -63,54 +63,19 @@ class Entity:
       return new_entity
 
    def _fill(self, **fields):
-      self._dirty = filter(lambda f : f in self.fields.keys(), fields)
-      self._relationships = filter(lambda f : f in self.relationships.keys(), fields)
+      self._dirty = {key:value for (key,value) in fields.items() if key in self.fields.keys()}
+      self._relationships = {key:value for (key,value) in fields.items() if key in self.relationships.keys()}
 
    def fresh(self):
       if not self.exists:
          return self(**self._dirty)
       else:
-         self._find(self.key)
+         self._find_in_db(self.key)
 
    @classmethod
    def find(cls, id = None):
       instance = cls()
-      return instance._find(id)
-
-   def _find(self, id = None):
-      def quote(v):
-         return "`"+v+"`"
-
-      fields = list(self.fields.keys())
-
-      if self.key_name not in fields:
-         fields.append(self.key_name)
-
-      fields = map(quote, fields)
-
-      query = "SELECT {} from {} ".format(", ".join(fields),self.table_name) #TODO don't select *......
-      db = self.db
-      cursor = db.cursor(dictionary=True)
-
-      if isinstance(id, list):
-         query += "WHERE {} in ({})".format(self.key, ", ".join(id))
-         logging.debug("QUERY: %s", query)
-         cursor.execute(query)
-         result = cursor.fetchall()
-         logging.debug("FOUND: %s", result)
-         return map(lambda x: self.build(**x), result)
-      elif id is None:
-         cursor.execute(query)
-         result = cursor.fetchall()
-         logging.debug("FOUND: %s", result)
-         return map(lambda x: self.build(**x), result)
-      else:
-         query += "WHERE {} = {}".format(self.key_name, id)
-         logging.debug("QUERY: %s", query)
-         cursor.execute(query)
-         result = cursor.fetchone()
-         logging.debug("FOUND: %s", result)
-         return self.build(**result)    
+      return instance._find_in_db(id)  
 
    def create(self, **data):
       return self.save(data)
@@ -122,20 +87,11 @@ class Entity:
       if not self.exists:
          return False
 
-      sql = "DELETE from {} WHERE `{}` = {}".format(self.table_name, self.key_name, self.key)
-      db = self.db
-      cursor = db.cursor()
-      logging.debug("QUERY: %s", sql)
-      cursor.execute(sql)
-      db.commit()
-      if cursor.rowcount > 0:
-         return True
+      return self._delete_from_db()
 
-      return False
-
-   @abstractmethod
+   
    def render(self):
-      pass
+      return self.render_excerpt()
    
    def render_excerpt(self):
       """
@@ -163,6 +119,53 @@ class Entity:
          self._update_db(self._data)
       else:
          self._insert_into_db(self._data)
+
+   def _delete_in_db(self):
+      sql = "DELETE from {} WHERE `{}` = {}".format(self.table_name, self.key_name, self.key)
+      db = self.db
+      cursor = db.cursor()
+      logging.debug("QUERY: %s", sql)
+      cursor.execute(sql)
+      db.commit()
+      if cursor.rowcount > 0:
+         return True
+
+      return False
+
+   def _find_in_db(self, id = None):
+      def quote(v):
+         return "`"+v+"`"
+
+      fields = list(self.fields.keys())
+
+      if self.key_name not in fields:
+         fields.append(self.key_name)
+
+      fields = map(quote, fields)
+
+      query = "SELECT {} from {} ".format(", ".join(fields),self.table_name) #TODO don't select *......
+      db = self.db
+      cursor = db.cursor(dictionary=True)
+
+      if isinstance(id, list):
+         query += "WHERE {} in ({})".format(self.key, ", ".join(id))
+         logging.debug("QUERY: %s", query)
+         cursor.execute(query)
+         result = cursor.fetchall()
+         logging.debug("FOUND: %s", result)
+         return map(lambda x: self.build(**x), result)
+      elif id is None: # no id no problem
+         cursor.execute(query)
+         result = cursor.fetchall()
+         logging.debug("FOUND: %s", result)
+         return list(map(lambda x: self.build(**x), result))
+      else: # find single instance with the specified id
+         query += "WHERE {} = {}".format(self.key_name, id)
+         logging.debug("QUERY: %s", query)
+         cursor.execute(query)
+         result = cursor.fetchone()
+         logging.debug("FOUND: %s", result)
+         return self.build(**result)
 
    def _update_db(self, data):
       if self.key is None:
@@ -206,6 +209,7 @@ class Entity:
          return self
       else:
          raise Exception("Unable to insert in db")
+
    def _get_sql_data(self, data):
       """
       returns tuple with (columns, values)
@@ -239,16 +243,26 @@ class Entity:
       return (column_string, value_string)
 
    def __setattr__(self, name, val):
-      if name in self.fields.keys():
+      if name in self.relationships.keys():
+         self.relationships[name].build(val)
+      elif name in self.fields.keys():
          self._dirty[name] = val
-      elif name in self.relationships.keys():
-         self._relationships[name] = self.relationships[name].build(val)
+      else:
+         super(Entity, self).__setattr__(name, val)
 
    def __getattr__(self, name):
       if len(self.fields.keys()) > 0 and name in self.fields.keys():
-         return self._dirty[name]
+         if name in self._dirty.keys():
+            return self._dirty[name]
+         elif name in self._data.keys():
+            return self._data[keys]
+         else:
+            return None
       elif len(self.relationships.keys()) > 0 and name in self.relationships.keys():
          self._relationships[name]
+   
+   def __str__(self):
+      return self.render_excerpt()
 
 class HeritableEntity(Entity):
    parent_entity = ""

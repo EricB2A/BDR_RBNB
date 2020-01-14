@@ -51,13 +51,20 @@ Exmaple usage:
 
       self.ask_for_fields(entity)
 
-      for relationship in entity.relationships:
+      for name, relationship in entity.relationships.items():
          if isinstance(relationship, ManyToMany):
             pass
             # Do something for many to many
          elif isinstance(relationship,  OneToMany):
-            setattr(entity, relationship.name, ask(relationship.get_all_foreign_entities()))
+            #get all remote entities
+            questions = [inquirer.Checkbox(name,
+                  message="Which {}?".format(name),
+                  choices=relationship.find(),
+            )]
+            res = inquirer.prompt(questions)
+            setattr(entity, relationship.name, res)
 
+      #TODO add resume plus confirm
       entity.save()
       print("New {} created succesfully".format(entity_name))
 

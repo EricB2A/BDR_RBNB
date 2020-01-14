@@ -33,11 +33,12 @@ class Relationship:
       self.foreign_table = self.foreign_entity.table_name
       self.foreign_key = self.foreign_entity.key
 
-   def build(self, **data): 
-      if self.local_entity.class_name in data:
-         self._local_data = data[self.local_entity.class_name]
-      if self._foreign_entity.class_name in data:
-         self._foreign_data = data[self._foreign_entity.class_name]
+   def build(self, **data):
+      self._data = data #data to save in either foreign or local table
+      # if self.local_entity.class_name in data:
+      #    self._local_data = data[self.local_entity.class_name]
+      # if self._foreign_entity.class_name in data:
+      #    self._foreign_data = data[self._foreign_entity.class_name]
 
    def find(self):
       pass
@@ -45,10 +46,6 @@ class Relationship:
    def save(self, entity):
       """
       entity: Local entity that is going to be saved
+      data to be saved can be accessed in self._data
       """
-      #one to many required local field to be sometable_id = id
-      #many to many requires pivot table and multiple entities be modified and found before hand
-      if self._local_data is not None:
-         setattr(entity, self.local_key, self._local_data)
-      if self._foreign_data is not None:
-         setattr(entity, self.foreign_key, self._foreign_data)
+      pass
