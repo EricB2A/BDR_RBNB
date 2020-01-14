@@ -16,8 +16,8 @@ class Create(Command):
    def help(self):
       
       entities_available = ""
-      print(EntityManager.get_all_entities())
-      for name in EntityManager.get_all_entities():
+      em = EntityManager()
+      for name in em.get_all_entities():
          entities_available += "\t - " + name + "\n"
 
       command_executable = "{} {}".format(sys.executable, sys.argv[0])

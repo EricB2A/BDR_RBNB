@@ -4,6 +4,11 @@ from db.entity_manager import EntityManager
 import logging
 from mysql.connector.conversion import MySQLConverter
 from config import Config
+from decimal import Decimal
+from mysql.connector.custom_types import HexLiteral
+
+NUMERIC_TYPES = (int, float, Decimal, HexLiteral)
+
 class Entity:
    """
    Meta class for all entities
@@ -20,6 +25,7 @@ class Entity:
    def db(self):
       em = EntityManager()
       db = em.get_db()
+      return db
    @property
    def class_name(self):
       return self.__class__.__name__.lower()
@@ -30,7 +36,7 @@ class Entity:
 
    @property
    def key(self):
-      return self._data[self.key_name]
+      return self._data[self.key_name] if self.key_name in self._data else None
 
    @property
    def key_name(self):
@@ -45,11 +51,11 @@ class Entity:
       # build relationship mapping
       # fill the entity with all the fields
       self._fill(**fields)
-      em = EntityManager()
-      self.manager = em
-      logging.debug("Instantiating new %s, EM: %s", self.__class__, em)
+      #em = EntityManager()
+      #self.manager = em
+      #logging.debug("Instantiating new %s, EM: %s", self.__class__, em)
 
-      self.db = em.conn
+      #self.db = em.conn
       
    @classmethod
    def build(cls, **fields):
@@ -61,25 +67,48 @@ class Entity:
       self._dirty = filter(lambda f : f in self.fields.keys(), fields)
       self._relationships = filter(lambda f : f in self.relationships.keys(), fields)
 
-   def find(self, id):
-      query = "SELECT * from {} WHERE ".format(self.table_name) #TODO don't select *......
+   @classmethod
+   def find(cls, id):
+      instance = cls()
+      return instance._find(id)
+
+   def _find(self, id):
+      def quote(v):
+         return "`"+v+"`"
+      fields = list(self.fields.keys())
+
+      if self.key_name not in fields:
+         fields.append(self.key_name)
+
+      fields = map(quote, fields)
+
+      
+
+      query = "SELECT {} from {} WHERE ".format(", ".join(fields),self.table_name) #TODO don't select *......
       db = self.db
-      cursor = db.cursor()
+      cursor = db.cursor(dictionary=True)
 
       if isinstance(id, list):
          query += "{} in ({})".format(self.key, ", ".join(id))
+         logging.debug("QUERY: %s", query)
          cursor.execute(query)
          result = cursor.fetchall()
-         return map(lambda x: self.build(x), result)
+         logging.debug("FOUND: %s", result)
+         return map(lambda x: self.build(**x), result)
       else:
+         query += "{} = {}".format(self.key_name, id)
+         logging.debug("QUERY: %s", query)
          cursor.execute(query)
          result = cursor.fetchone()
-         return map(lambda x: self.build(x), result)[0]      
+         logging.debug("FOUND: %s", result)
+         return self.build(**result)    
 
    def create(self, **data):
       return self.save(data)
+
    def update(self, **data):
       return self.save(data)
+
    def delete(self):
       if not self.exists:
          return True
@@ -180,7 +209,11 @@ class Entity:
          if val is None:
             return "NULL"
          return val
-      _escape_value = compose(none_to_null, lambda x: "'"+x+"'", converter.escape)
+      def quote(val):
+         if isinstance(val, NUMERIC_TYPES):
+            return val
+         return "'"+val+"'"
+      _escape_value = compose(none_to_null, quote , converter.escape)
       _escape_column = compose(none_to_null,lambda x: "`"+x+"`", converter.escape)
       # create placeholders for the data
       column_string = ""
@@ -225,11 +258,11 @@ class HeritableEntity(Entity):
    @property
    def parent(self):
       p = self.parent_entity()
-      return p.find(self.parent_id)
+      return p._find(self.parent_id)
 
    def find(self, id = None):
       #get all local entities by id
-      entities = super().find(id)
+      entities = super()._find(id)
       #then get all their parents
       return map(lambda x: x.parent(), entities) # TODO should work
 
