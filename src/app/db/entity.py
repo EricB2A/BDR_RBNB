@@ -1,8 +1,9 @@
-from utils import sanitize
+from utils import sanitize, compose
 from abc import abstractmethod
 from db.entity_manager import EntityManager
 import logging
-
+from mysql.connector.conversion import MySQLConverter
+from config import Config
 class Entity:
    """
    Meta class for all entities
@@ -15,7 +16,10 @@ class Entity:
    fields = {}
    relationships = {}
    manager = None
-   db = None
+   @property
+   def db(self):
+      em = EntityManager()
+      db = em.get_db()
    @property
    def class_name(self):
       return self.__class__.__name__.lower()
@@ -57,16 +61,38 @@ class Entity:
       self._dirty = filter(lambda f : f in self.fields.keys(), fields)
       self._relationships = filter(lambda f : f in self.relationships.keys(), fields)
 
-   def findOne(self, criteria):
-      pass
-   def find(self, criteria):
-      pass
-   def create(self):
-      pass
-   def update(self):
-      pass
+   def find(self, id):
+      query = "SELECT * from {} WHERE ".format(self.table_name) #TODO don't select *......
+      db = self.db
+      cursor = db.cursor()
+
+      if isinstance(id, list):
+         query += "{} in ({})".format(self.key, ", ".join(id))
+         cursor.execute(query)
+         result = cursor.fetchall()
+         return map(lambda x: self.build(x), result)
+      else:
+         cursor.execute(query)
+         result = cursor.fetchone()
+         return map(lambda x: self.build(x), result)[0]      
+
+   def create(self, **data):
+      return self.save(data)
+   def update(self, **data):
+      return self.save(data)
    def delete(self):
-      pass
+      if not self.exists:
+         return True
+
+      sql = "DELETE from {} WHERE {}={}".format(self.table_name, self.key_name, self.key)
+      db = self.db
+      cursor = db.cursor()
+      cursor.execute(sql)
+      db.commit()
+      if cursor.rowcount > 0:
+         return True
+
+      return False
 
    @abstractmethod
    def render(self):
@@ -78,7 +104,8 @@ class Entity:
       """
       return "({}) {}".format(self.key, self.name)
    
-   def save(self):
+   def save(self, **data):
+      self._fill(**data)
       self._sanitize_fields() # build up all the fields -> sanitize them and everything
       self._build_relationships() #build up all relationships
       return self._persist() #persist in db
@@ -86,31 +113,52 @@ class Entity:
    def _sanitize_fields(self):
       for k, v in self._dirty.items():
          self._data[k] = sanitize(v)
+
    def _build_relationships(self):
       for r in self.relationships: #tell each relationship that we're now saving the local entity
          #each relationship will now fill the local entity if needed before saving
          r.save(self)
 
    def _persist(self):
-      #if not self.db:
-      #   raise Exception("Not connected to database") #TODO there seems to be a bug where the db field isn't populated at all when creating an entity
-
       if self.exists:
-         pass # TODO
+         self._update_db(self._data)
       else:
          self._insert_into_db(self._data)
+
+   def _update_db(self, data):
+      if self.key is None:
+         raise Exception("Unable to update entity that doesn't exist")
+      db = self.db
+      # create placeholders for the data
+      columns, values = self._get_sql_data(data)
+
+      update_statement = ""
+      for i in columns:
+         update_statement += "SET "+columns[i]+" = " +values[i]
+
+      sql = "UPDATE `{}` {} WHERE {}={};".format(self.table_name, update_statement, self.key_name, self.key)
+      logging.debug("Using db: %s", db.database)
+      cursor = db.cursor()
+      logging.debug("EXECUTING SQL: %s",sql)
+      cursor.execute(sql, data)
+      db.commit()
+      if cursor.rowcount > 0:
+         # set the id, now the class exists!
+         # setattr(self, self.key_name, cursor.lastrowid)
+         return self
+      else:
+         raise Exception("Unable to update in db")
 
    def _insert_into_db(self, data):
       em = EntityManager()
       db = em.get_db()
+      # create placeholders for the data
+      columns, values = self._get_sql_data(data)
 
-      data_keys = data.keys()
-      n_values = len(data_keys) * "%s, "
-      values = data.values()
-      value_string = n_values[:-2]
-      sql = "INSERT INTO `{}`({}) VALUES({})".format(self.table_name, ", ".join(map(lambda s: "`"+s+"`", data_keys)), value_string)
+      sql = "INSERT INTO `{}`({}) VALUES({});".format(self.table_name, columns, values)
+      logging.debug("Using db: %s", db.database)
       cursor = db.cursor()
-      logging.debug("EXECUTING SQL: %s with values : %s",sql, values)
+      logging.debug("EXECUTING SQL: %s",sql)
       cursor.execute(sql, data)
       db.commit()
       if cursor.rowcount > 0:
@@ -119,9 +167,33 @@ class Entity:
          return self
       else:
          raise Exception("Unable to insert in db")
+   def _get_sql_data(self, data):
+      """
+      returns tuple with (columns, values)
+      """
+      em = EntityManager()
+      db = em.get_db()
+      config = Config()
+      charset = config.db.charset if "charset" in config.db.keys() else "utf8"
+      converter = MySQLConverter(charset)
+      def none_to_null(val):
+         if val is None:
+            return "NULL"
+         return val
+      _escape_value = compose(none_to_null, lambda x: "'"+x+"'", converter.escape)
+      _escape_column = compose(none_to_null,lambda x: "`"+x+"`", converter.escape)
+      # create placeholders for the data
+      column_string = ""
+      value_string = ""
 
-   def _clean(self, statement):
-      pass
+      for k,v in data.items():
+         value_string +=  _escape_value(v) +  ", "
+         column_string += _escape_column(k) + ", "
+
+      value_string = value_string[:-2] #remove trailing comma
+      column_string = column_string[:-2] #remove trailing comma
+
+      return (column_string, value_string)
 
    def __setattr__(self, name, val):
       if name in self.fields.keys():
@@ -134,4 +206,45 @@ class Entity:
          return self._dirty[name]
       elif len(self.relationships.keys()) > 0 and name in self.relationships.keys():
          self._relationships[name]
+
+class HeritableEntity(Entity):
+   parent_entity = ""
+   @property
+   def parent_id_name(self):
+      return self.parent_entity + "_id"
+   @property
+   def parent_id(self):
+      return getattr(self, self.parent_id_name)
       
+   @property
+   def parent_entity(self):
+      em = EntityManager()
+      parent = em.get_entity(self.parent_entity)
+      return parent
+
+   @property
+   def parent(self):
+      p = self.parent_entity()
+      return p.find(self.parent_id)
+
+   def find(self, id = None):
+      #get all local entities by id
+      entities = super().find(id)
+      #then get all their parents
+      return map(lambda x: x.parent(), entities) # TODO should work
+
+   def update(self, data):
+      pass #TODO same as find
+
+   def save(self, **data):
+      parent = self.parent()
+      parent.save(**data)
+      setattr(self, self.parent_id, parent.key)
+      data_to_save = {
+         self.parent_id: self.personne_id
+      }
+      if self.exists:
+         self._update_db(data_to_save)
+      else:
+         self._insert_to_db(data_to_save)
+   

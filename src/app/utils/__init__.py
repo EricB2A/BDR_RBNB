@@ -1,5 +1,6 @@
 from os import listdir
 from os.path import isfile, join
+import functools
 """
 Singleton meta class
 """
@@ -43,3 +44,6 @@ def get_files_in_path(path):
 
 def sanitize(data):
   return str(data)
+
+def compose(*funcs):
+  return functools.reduce(lambda f,g: lambda x: f(g(x)),funcs, lambda x: x)

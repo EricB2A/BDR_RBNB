@@ -6,9 +6,9 @@ import sys
 import logging
 import inquirer
 
-def ask(*args):
-   return input("Wassup >")
 class Create(Command):
+   
+
    def __init__(self, *args, **kwargs):
       super().__init__(*args, **kwargs)
       self.entity_manager = EntityManager()
@@ -47,7 +47,7 @@ Exmaple usage:
          return self.help()
       entity = entity()
       
-      print("New {}:\n\n".format(entity.__name__))
+      print("New {}:\n\n".format(entity_name))
 
       self.ask_for_fields(entity)
 
