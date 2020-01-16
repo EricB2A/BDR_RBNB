@@ -54,16 +54,29 @@ Exmaple usage:
          res = entity.find()
       #data = list(map(lambda e: list(map(lambda n: getattr(e,n),e.fields.keys())), res))
       data = []
+      headers = list(entity.fields.keys())
+      
       logging.debug("GOT MODELS: %s",list(res))
       for e in res:
+         r = list() #list containing the id of the
+         # if e.key_name is not None:
+         #    r.append(e.key)
+         relations = list()
+         for n,relation in e.relationships.items():
+            relations = list(map(lambda e_: e_.render_excerpt(), relation.find(e)))
+            if n not in headers:
+               headers.append(n)
          data.append(
-            [ getattr(e,k) for k in e.fields.keys() ]
+            r + [ getattr(e,k) for k in e.fields.keys() ] + [", ".join(relations)]
          )
+         
+      
+         
       logging.debug(data)
-      logging.debug(list(entity.fields.keys()))
+      logging.debug(headers)
       string = tt.to_string(
          data,
-         header=list(entity.fields.keys()),
+         header=headers,
          style=tt.styles.ascii_thin_double,
       )
       print(string)

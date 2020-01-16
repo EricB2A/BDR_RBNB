@@ -21,7 +21,7 @@ class Entity(object):
    fields = {}
    relationships = {}
    manager = None
-
+   _key = None
    @property
    def db(self):
       """
@@ -43,7 +43,7 @@ class Entity(object):
 
    @property
    def key(self):
-      return self._data[self.key_name] if self.key_name in self._data else None
+      return self._key
 
    @property
    def key_name(self):
@@ -51,7 +51,7 @@ class Entity(object):
 
    @property
    def exists(self):
-      return hasattr(self._data,self.key_name)
+      return self._key is not None
 
    def __init__(self, **fields):
       self._fill(**fields)
@@ -62,9 +62,12 @@ class Entity(object):
       new_entity._fill(**fields)
       return new_entity
 
-   def _fill(self, **fields):
-      self._dirty = {key:value for (key,value) in fields.items() if key in self.fields.keys()}
-      self._relationships = {key:value for (key,value) in fields.items() if key in self.relationships.keys()}
+   def _fill(self, **data):
+      if self.key_name in data.keys():
+         self._key = data[self.key_name]
+
+      self._dirty = {key:value for (key,value) in data.items() if key in self.fields.keys()}
+      self._relationships = {key:value for (key,value) in data.items() if key in self.relationships.keys()}
 
    def fresh(self):
       if not self.exists:
@@ -205,7 +208,7 @@ class Entity(object):
       db.commit()
       if cursor.rowcount > 0:
          # set the id, now the class exists!
-         setattr(self, self.key_name, cursor.lastrowid)
+         setattr(self, self._key, cursor.lastrowid)
          return self
       else:
          raise Exception("Unable to insert in db")
@@ -228,7 +231,7 @@ class Entity(object):
             return val
          return "'"+val+"'"
       _escape_value = compose(none_to_null, quote , converter.escape)
-      _escape_column = compose(none_to_null,lambda x: "`"+x+"`", converter.escape)
+      _escape_column = compose(none_to_null,lambda x: "`"+x+"`", converter.escape) #column quting is different than normal quotes
       # create placeholders for the data
       column_string = ""
       value_string = ""
@@ -259,7 +262,7 @@ class Entity(object):
          else:
             return None
       elif len(self.relationships.keys()) > 0 and name in self.relationships.keys():
-         self._relationships[name]
+         self._relationships[name].find(self)
    
    def __str__(self):
       return self.render_excerpt()

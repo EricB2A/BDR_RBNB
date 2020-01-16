@@ -5,13 +5,10 @@ import utils
 from pathlib import Path
 
 @utils.singleton
-class Config:
+class Config(object):
    #__metaclass__ = utils.Singleton
    configs = {}
    config_path = None
-   
-   def __init__(self):
-      pass
 
    def load(self, path):
       
@@ -21,7 +18,7 @@ class Config:
          with open(f, "r") as fp:
             self.configs[config_name] = json.load(fp)
       
-      logging.debug("Loaded config: ", self.configs)
+      logging.debug("Loaded config: %s", self.configs)
 
    def _get_path(self):
       return self.config_path

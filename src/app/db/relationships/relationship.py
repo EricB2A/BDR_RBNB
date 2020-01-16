@@ -1,3 +1,5 @@
+from db.entity_manager import EntityManager
+
 class Relationship:
    from_table = ""
    local_key = ""
@@ -5,18 +7,20 @@ class Relationship:
    foreign_table = ""
    _foreign_data = None
    _local_data = None
-   _foreign_entity = None
-   _local_entity = None
+   _attached_entity = None
+   foreign_entity = None
+   local_entity = None
+   
    foreign_entity_name = ""
    local_entity_name = ""
 
    """
    All entity names must be declared in ```/app/entities/__init__.py```
    """
-   def __init__(self, local_entity_name, foreign_entity_name):
+   def __init__(self, local_entity_name, foreign_entity_name, foreign_key = None):
       self.local_entity_name = local_entity_name
       self.foreign_entity_name = foreign_entity_name
-
+      self.foreign_key = foreign_key
       self.manager = EntityManager()
       self.db = self.manager.db
 
@@ -31,7 +35,6 @@ class Relationship:
       self.local_key = self.local_entity.key
 
       self.foreign_table = self.foreign_entity.table_name
-      self.foreign_key = self.foreign_entity.key
 
    def build(self, **data):
       self._data = data #data to save in either foreign or local table
@@ -39,6 +42,9 @@ class Relationship:
       #    self._local_data = data[self.local_entity.class_name]
       # if self._foreign_entity.class_name in data:
       #    self._foreign_data = data[self._foreign_entity.class_name]
+
+   def destroy(self, entity):
+      pass
 
    def find(self):
       pass
@@ -49,3 +55,4 @@ class Relationship:
       data to be saved can be accessed in self._data
       """
       pass
+   

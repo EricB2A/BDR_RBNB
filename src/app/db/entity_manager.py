@@ -12,11 +12,15 @@ class EntityManager:
    config = None
    entities = {}
    conn = None
-   db = None
+
+   @property
+   def db(self):
+      return self.conn
 
    @property
    def db_name(self):
-      return self.config["database"] if self.config is not None else None
+      c = Config()
+      return c.db["database"] if c is not None else None
 
    @property
    def is_connected(self):
@@ -24,20 +28,23 @@ class EntityManager:
          return False
       return self.conn.is_connected()
 
-   def __init__(self):
+   def __init__(self, *args, **kwargs):
+      super().__init__(*args,**kwargs)
       c = Config()
+
       self.config = c.db
 
    def boot(self):
       self._connect()
+
    def boot_relationships(self):
       if not self.entities:
          raise Exception("No entities registered in entity manager")
 
       for name, entity in self.entities.items():
          for rname, relationship in entity.relationships.items():
-            local_entity = self.entities[relationship.local_entity_name]
-            remote_entity = self.entities[relationship.remote_entity_name]
+            local_entity = entity
+            remote_entity = self.entities[relationship.foreign_entity_name]
             relationship.boot(local_entity, remote_entity)
 
    def create_database(self):
@@ -72,10 +79,14 @@ class EntityManager:
       self.create_database()
 
    def _connect(self):
+      config = Config()
+      self.config = config
+      if not config.db:
+         raise Exception("No database configuration")
       conn = None
       # create and open port to mysql server
       try:
-         config = {k:v for k,v in self.config.items() if k != "database"}
+         config = {k:v for k,v in config.db.items() if k != "database"}
          logging.debug("Using config for db connexion:  {}".format(config))
          self.conn = mysql.connector.connect(**config)
 

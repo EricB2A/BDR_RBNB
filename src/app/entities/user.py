@@ -10,5 +10,5 @@ class User(Entity):
       "password": "string"
    }
    relationships = {
-      # "locations" : OneToMany(User, Location)
+      "locations" : OneToMany("user", "location", "user_id")
    }
