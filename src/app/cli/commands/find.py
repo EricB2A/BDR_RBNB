@@ -12,7 +12,6 @@ class Find(Command):
 
    def __init__(self, *args, **kwargs):
       super().__init__(*args, **kwargs)
-      self.entity_manager = EntityManager()
       
    def help(self):
       
@@ -37,10 +36,12 @@ Exmaple usage:
       ))
 
    def run(self, *args):
+      em = EntityManager()
+
       if len(args) < 1:
          return self.help()
       entity_name = args[0]
-      entity = self.entity_manager.get_entity(entity_name)
+      entity = em.get_entity(entity_name)
       if not entity:
          print("Couldn't find the class you are looking for")
          return self.help()

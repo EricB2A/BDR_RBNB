@@ -40,7 +40,7 @@ def singleton(class_):
   return class_w
 
 def get_files_in_path(path):
-  return [join(path,f) for f in listdir(path) if isfile(join(path, f))]
+  return [ join(path,f) for f in listdir(path) if isfile(join(path, f)) ]
 
 def sanitize(data):
   return str(data)
