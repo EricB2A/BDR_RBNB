@@ -37,7 +37,8 @@ class OneToOne(Relationship):
       return self.foreign_entity.find()
 
    def save(self, entity):
-      
+      if self._data is None:
+         return
       if not self._data.exists:
          self._data.save()
       assert isinstance(self._data, Entity) #must be iterable, many remote models to one local entity, not the other way around

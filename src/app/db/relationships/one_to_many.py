@@ -31,6 +31,9 @@ class OneToMany(Relationship):
       return self.foreign_entity.find()
 
    def save(self, entity):
+      if self._data is None:
+         return
+         
       if not entity.exists:
          entity._persist() # first save it, we need it's key!
       if self._data is None: #no data to be saved go along about our day

@@ -13,6 +13,8 @@ class Config(object):
    def load(self, path):
       
       for f in utils.get_files_in_path(path):
+         if not f.endswith(".json"):
+            continue
          config_name = Path(f).stem
          logging.debug("Loading {}".format(f))
          with open(f, "r") as fp:
