@@ -104,9 +104,9 @@ class Entity(object):
 
    def delete(self):
       if not self.exists:
-         return False
+         return True
 
-      return self._delete_from_db()
+      return self._delete_in_db()
 
    
    def render(self):
