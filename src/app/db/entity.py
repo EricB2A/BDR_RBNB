@@ -23,6 +23,9 @@ class Entity(object):
    manager = None
    _key = None
    @property
+   def id(self):
+      return self.key
+   @property
    def db(self):
       """
       Turns out singletons can't get accessed on init of a class
@@ -52,15 +55,19 @@ class Entity(object):
    @property
    def exists(self):
       return self._key is not None
-
-   def __init__(self, **fields):
-      self._fill(**fields)
       
    @classmethod
    def build(cls, **fields):
       new_entity = cls() 
       new_entity._fill(**fields)
       return new_entity
+
+   def __init__(self, *args, **fields):
+      super(Entity, self).__init__()
+      self._data = {}
+      self._dirty = {}
+      self._key = None
+      self._fill(**fields)
 
    def _fill(self, **data):
       if self.key_name in data.keys():
@@ -80,11 +87,17 @@ class Entity(object):
       instance = cls()
       return instance._find_in_db(id)  
 
-   def create(self, **data):
-      return self.save(data)
+   @classmethod
+   def create(cls, **data):
+      instance = cls()
+      instance._fill(**data)
+
+      instance.save()
+      return instance
 
    def update(self, **data):
-      return self.save(data)
+      self._fill(**data)
+      return self.save()
 
    def delete(self):
       if not self.exists:
@@ -103,25 +116,31 @@ class Entity(object):
       return "({}) {}".format(self.key, self.name)
    
    def save(self, **data):
-      self._fill(**data)
+      #self._fill(**data)
       self._sanitize_fields() # build up all the fields -> sanitize them and everything
-      self._build_relationships() #build up all relationships
-      return self._persist() #persist in db
+      
+      if self._persist(): #persist in db
+         self._build_relationships() #build up all relationships
+         return True
+
+      return False
 
    def _sanitize_fields(self):
       for k, v in self._dirty.items():
          self._data[k] = sanitize(v)
 
    def _build_relationships(self):
-      for r in self.relationships: #tell each relationship that we're now saving the local entity
+      for k,r in self.relationships.items(): #tell each relationship that we're now saving the local entity
          #each relationship will now fill the local entity if needed before saving
          r.save(self)
 
    def _persist(self):
       if self.exists:
-         self._update_db(self._data)
+         return self._update_db(self._data)
       else:
-         self._insert_into_db(self._data)
+         return self._insert_into_db(self._data)
+
+      return False
 
    def _delete_in_db(self):
       sql = "DELETE from {} WHERE `{}` = {}".format(self.table_name, self.key_name, self.key)
@@ -142,7 +161,7 @@ class Entity(object):
       fields = list(self.fields.keys())
 
       if self.key_name not in fields:
-         fields.append(self.key_name)
+         fields.insert(0,self.key_name)
 
       fields = map(quote, fields)
 
@@ -176,21 +195,24 @@ class Entity(object):
       db = self.db
       # create placeholders for the data
       columns, values = self._get_sql_data(data)
-
-      update_statement = ""
-      for i in columns:
-         update_statement += "SET "+columns[i]+" = " +values[i]
+      
+      update_statement = "SET"
+      for c,v in zip(columns, values):
+         update_statement += " "+ c +" = " + v+ ", "
+      
+      update_statement = update_statement[:-2] #remove trailing comma
 
       sql = "UPDATE `{}` {} WHERE {}={};".format(self.table_name, update_statement, self.key_name, self.key)
       logging.debug("Using db: %s", db.database)
       cursor = db.cursor()
       logging.debug("EXECUTING SQL: %s",sql)
+      logging.debug("DATA FROM MODEL: %s", data)
       cursor.execute(sql, data)
       db.commit()
       if cursor.rowcount > 0:
          # set the id, now the class exists!
          # setattr(self, self.key_name, cursor.lastrowid)
-         return self
+         return True
       else:
          raise Exception("Unable to update in db")
 
@@ -200,16 +222,29 @@ class Entity(object):
       # create placeholders for the data
       columns, values = self._get_sql_data(data)
 
-      sql = "INSERT INTO `{}`({}) VALUES({});".format(self.table_name, columns, values)
+      assert len(columns) == len(values)
+
+      column_string = ""
+      value_string = ""
+
+      for c, v in zip(columns, values):
+         value_string +=  v +  ", "
+         column_string += c + ", "
+
+      value_string = value_string[:-2] #remove trailing comma
+      column_string = column_string[:-2] #remove trailing comma
+
+      sql = "INSERT INTO `{}`({}) VALUES({});".format(self.table_name, column_string, value_string)
       logging.debug("Using db: %s", db.database)
       cursor = db.cursor()
       logging.debug("EXECUTING SQL: %s",sql)
+      logging.debug("DATA FROM MODEL: %s", data)
       cursor.execute(sql, data)
       db.commit()
       if cursor.rowcount > 0:
          # set the id, now the class exists!
-         setattr(self, self._key, cursor.lastrowid)
-         return self
+         self._key = cursor.lastrowid
+         return True
       else:
          raise Exception("Unable to insert in db")
 
@@ -222,28 +257,34 @@ class Entity(object):
       config = Config()
       charset = config.db.charset if "charset" in config.db.keys() else "utf8"
       converter = MySQLConverter(charset)
+
       def none_to_null(val):
          if val is None:
             return "NULL"
          return val
+
       def quote(val):
          if isinstance(val, NUMERIC_TYPES):
-            return val
+            return str(val)
          return "'"+val+"'"
+
+      def quote_col(val):
+         return "`"+val+"`"
+
       _escape_value = compose(none_to_null, quote , converter.escape)
-      _escape_column = compose(none_to_null,lambda x: "`"+x+"`", converter.escape) #column quting is different than normal quotes
-      # create placeholders for the data
-      column_string = ""
-      value_string = ""
+      _escape_column = compose(none_to_null, quote_col, converter.escape) #column quting is different than normal quotes
+      
+      if self.key_name not in data.keys() and self.key is not None: #add the key to the data
+         data[self.key_name] = self.key
+      
+      columns = list()
+      values = list()
 
       for k,v in data.items():
-         value_string +=  _escape_value(v) +  ", "
-         column_string += _escape_column(k) + ", "
+         values.append(_escape_value(v))
+         columns.append(_escape_column(k))
 
-      value_string = value_string[:-2] #remove trailing comma
-      column_string = column_string[:-2] #remove trailing comma
-
-      return (column_string, value_string)
+      return (columns, values)
 
    def __setattr__(self, name, val):
       if name in self.relationships.keys():
@@ -254,19 +295,20 @@ class Entity(object):
          super(Entity, self).__setattr__(name, val)
 
    def __getattr__(self, name):
-      if len(self.fields.keys()) > 0 and name in self.fields.keys():
-         if name in self._dirty.keys():
-            return self._dirty[name]
-         elif name in self._data.keys():
-            return self._data[keys]
-         else:
-            return None
+      if name in self._dirty.keys():
+         return self._dirty[name]
+      elif name in self._data.keys():
+         return self._data[keys]
       elif len(self.relationships.keys()) > 0 and name in self.relationships.keys():
          self._relationships[name].find(self)
-   
+      else:
+         return None
+
    def __str__(self):
       return self.render_excerpt()
 
+
+#Doran told me to do this, frick that dude
 class HeritableEntity(Entity):
    parent_entity = ""
    @property

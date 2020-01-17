@@ -1,6 +1,8 @@
 from .relationship import Relationship
 from db.entity_manager import EntityManager
 import logging
+from collections.abc import Iterable
+
 class OneToMany(Relationship):
    """
    Users
@@ -15,7 +17,7 @@ class OneToMany(Relationship):
    def find(self, entity):
       sql = "SELECT * FROM {} WHERE {} in ({})".format(
          self.foreign_table, 
-         self.foreign_key if self.foreign_key else self.foreign_entity.table_name + "_id",
+         self.foreign_key,
          entity.key
       )
       logging.debug("QUERY: %s", sql)
@@ -30,16 +32,22 @@ class OneToMany(Relationship):
 
    def save(self, entity):
       if not entity.exists:
-         entity.save() # first save it, we need it's key
+         entity._persist() # first save it, we need it's key!
+         
+      assert isinstance(self._data, Iterable) #must be iterable, many remote models to one local entity, not the other way around
 
       for remote in self._data:
-         setattr(remote, self.local_entity.table_name + "_id", entity.key) #set the remote attribute to {table_name}_id = this entities key
+         setattr(remote, self.foreign_key, entity.key) #set the remote attribute to {table_name}_id = this entities key
          remote.save()
 
    def destroy(self):
+      if not self.local_entity.exists:
+         self._data = []
+         return True
+
       sql = "DELETE FROM {} WHERE {} in ({})".format(
          self.foreign_entity.table_name, 
-         self.local_entity.table_name + "_id",
+         self.from_table + "_id",
          self.local_entity.key
       )
       em = EntityManager()

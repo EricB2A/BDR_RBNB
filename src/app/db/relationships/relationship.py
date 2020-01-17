@@ -20,7 +20,7 @@ class Relationship:
    def __init__(self, local_entity_name, foreign_entity_name, foreign_key = None):
       self.local_entity_name = local_entity_name
       self.foreign_entity_name = foreign_entity_name
-      self.foreign_key = foreign_key
+      self.foreign_key = foreign_key  if foreign_key else foreign_entity_name + "_id"
       self.manager = EntityManager()
       self.db = self.manager.db
 
@@ -36,7 +36,7 @@ class Relationship:
 
       self.foreign_table = self.foreign_entity.table_name
 
-   def build(self, **data):
+   def build(self, data):
       self._data = data #data to save in either foreign or local table
       # if self.local_entity.class_name in data:
       #    self._local_data = data[self.local_entity.class_name]

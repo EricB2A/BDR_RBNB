@@ -3,7 +3,8 @@ from db.entity import Entity
 class Location(Entity):
    _table_name = "locations"
    fields = {
-      "name" : "string"
+      "name" : "string",
+      "user_id" : "relationship"
    }
    def render(self):
       pass
