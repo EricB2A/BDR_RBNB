@@ -1,6 +1,8 @@
 from os import listdir
 from os.path import isfile, join
 import functools
+import collections 
+import six
 """
 Singleton meta class
 """
@@ -47,3 +49,7 @@ def sanitize(data):
 
 def compose(*funcs):
   return functools.reduce(lambda f,g: lambda x: f(g(x)),funcs, lambda x: x)
+
+
+def iterable(val):
+  return isinstance(val, collections.Iterable) and not isinstance(val, six.string_types)

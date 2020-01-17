@@ -2,7 +2,7 @@ from .relationship import Relationship
 from db.entity_manager import EntityManager
 import logging
 from collections.abc import Iterable
-
+from utils import iterable
 class OneToMany(Relationship):
    """
    Users
@@ -39,7 +39,7 @@ class OneToMany(Relationship):
       if self._data is None: #no data to be saved go along about our day
          return True
 
-      assert isinstance(self._data, Iterable) #must be iterable, many remote models to one local entity, not the other way around
+      assert iterable(self._data) #must be iterable, many remote models to one local entity, not the other way around
 
       for remote in self._data:
          setattr(remote, self.foreign_key, entity.key) #set the remote attribute to {table_name}_id = this entities key

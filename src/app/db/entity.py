@@ -1,4 +1,4 @@
-from utils import sanitize, compose
+from utils import sanitize, compose, iterable
 from abc import abstractmethod
 from db.entity_manager import EntityManager
 import logging
@@ -173,9 +173,9 @@ class Entity(object):
       db = self.db
       cursor = db.cursor(dictionary=True)
       
-      if isinstance(id, Iterable):
+      if iterable(id):
          ids = list(filter(lambda x: bool(x), id))
-         logging.debug(ids)
+         logging.debug("SEARCHING for ids: %s", ids)
          query += "WHERE {} in ({})".format(self.key_name, ", ".join(ids))
          logging.debug("QUERY: %s", query)
          cursor.execute(query)
@@ -193,7 +193,7 @@ class Entity(object):
          cursor.execute(query)
          result = cursor.fetchone()
          logging.debug("FOUND: %s", result)
-         if result.rowcount <= 0:
+         if cursor.rowcount <= 0:
             return None
          return self.build(**result)
 

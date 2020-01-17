@@ -57,13 +57,13 @@ Exmaple usage:
 
       data = []
       self.headers = list(entity.fields.keys())
-      
+      self.headers.insert(0, "id")
       logging.debug("GOT MODELS: %s",res)
       if isinstance(res, Entity):
-         data = [ self._get_data_from_entity(res) ]
+         data = [e.key] + [ self._get_data_from_entity(res) ]
       else:
          for e in res:
-            data.append(self._get_data_from_entity(e))
+            data.append([e.key] + self._get_data_from_entity(e))
          
       
       if len(data) <= 0:

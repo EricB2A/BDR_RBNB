@@ -43,16 +43,20 @@ Exmaple usage:
       entity = self.entity_manager.get_entity(entity_name)
       logging.debug("EM: %s", self.entity_manager)
       logging.debug("Available entities: %s", self.entity_manager.get_all_entities())
+
       if not entity:
          print("Couldn't find the class you are looking for")
          return self.help()
+         
       if len(args) != 2:
          print("You must only provide a single id to update")
+         return
 
       entity = entity.find(args[1])
       if entity is None:
          print("Couldn't find {} {}".format(args[0],args[2]))
       
+      logging.debug("UPDATING ENTITY: %s", entity)
       print("Updating {}:\n\n".format(entity_name))
 
       self.ask_for_fields(entity)
