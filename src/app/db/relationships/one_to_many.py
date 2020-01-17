@@ -33,7 +33,9 @@ class OneToMany(Relationship):
    def save(self, entity):
       if not entity.exists:
          entity._persist() # first save it, we need it's key!
-         
+      if self._data is None: #no data to be saved go along about our day
+         return True
+
       assert isinstance(self._data, Iterable) #must be iterable, many remote models to one local entity, not the other way around
 
       for remote in self._data:
@@ -46,8 +48,8 @@ class OneToMany(Relationship):
          return True
 
       sql = "DELETE FROM {} WHERE {} in ({})".format(
-         self.foreign_entity.table_name, 
-         self.from_table + "_id",
+         self.foreign_table, 
+         self.foreign_key,
          self.local_entity.key
       )
       em = EntityManager()

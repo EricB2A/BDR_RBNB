@@ -1,14 +1,16 @@
 from .command import Command
 from db.entity_manager import EntityManager
+from db.entity import Entity
 from db.relationships.many_to_many import ManyToMany
 from db.relationships.one_to_many import OneToMany
+from db.relationships.one_to_one import OneToOne
 import sys
 import logging
 import inquirer
 import termtables as tt
 
 class Find(Command):
-   
+   headers = list()
 
    def __init__(self, *args, **kwargs):
       super().__init__(*args, **kwargs)
@@ -52,34 +54,47 @@ Exmaple usage:
          res = entity.find(ids)
       else:
          res = entity.find()
-      #data = list(map(lambda e: list(map(lambda n: getattr(e,n),e.fields.keys())), res))
+
       data = []
-      headers = list(entity.fields.keys())
+      self.headers = list(entity.fields.keys())
       
-      logging.debug("GOT MODELS: %s",list(res))
-      for e in res:
-         r = list() #list containing the id of the
-         # if e.key_name is not None:
-         #    r.append(e.key)
-         relations = list()
-         for n,relation in e.relationships.items():
-            relations = list(map(lambda e_: e_.render_excerpt(), relation.find(e)))
-            if n not in headers:
-               headers.append(n)
-         data.append(
-            r + [ getattr(e,k) for k in e.fields.keys() ] + [", ".join(relations)]
-         )
+      logging.debug("GOT MODELS: %s",res)
+      if isinstance(res, Entity):
+         data = [ self._get_data_from_entity(res) ]
+      else:
+         for e in res:
+            data.append(self._get_data_from_entity(e))
          
       
-         
+      if len(data) <= 0:
+         data = [ [ "" for i in range(len(self.headers)) ]] 
+
       logging.debug(data)
-      logging.debug(headers)
+      logging.debug(self.headers)
       string = tt.to_string(
          data,
-         header=headers,
+         header=self.headers,
          style=tt.styles.ascii_thin_double,
       )
       print(string)
       
+   def _get_data_from_entity(self, entity):
+      relations = list()
+      for n,relation in entity.relationships.items():
 
+         if isinstance(relation, OneToMany):
+            relations.append(list(map(lambda e_: e_.render_excerpt(), relation.find(entity))))
+         elif isinstance(relation, OneToOne):
+            r = relation.find(entity)
+            relations.append(r.render_excerpt() if r is not None else None)
+
+         if n not in self.headers:
+            self.headers.append(n)
+      def map_relations(rel):
+         if isinstance(rel, list):
+            return ", ".join(rel)
+         return rel
+      
+      return [ getattr(entity,k) for k in entity.fields.keys() ] + list(map(map_relations, relations))
+      
       

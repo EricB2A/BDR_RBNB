@@ -6,6 +6,7 @@ from mysql.connector.conversion import MySQLConverter
 from config import Config
 from decimal import Decimal
 from mysql.connector.custom_types import HexLiteral
+from collections.abc import Iterable
 
 NUMERIC_TYPES = (int, float, Decimal, HexLiteral)
 
@@ -22,6 +23,7 @@ class Entity(object):
    relationships = {}
    manager = None
    _key = None
+   was_recently_created = False
    @property
    def id(self):
       return self.key
@@ -67,6 +69,7 @@ class Entity(object):
       self._data = {}
       self._dirty = {}
       self._key = None
+      self.was_recently_created = False
       self._fill(**fields)
 
    def _fill(self, **data):
@@ -120,7 +123,9 @@ class Entity(object):
       self._sanitize_fields() # build up all the fields -> sanitize them and everything
       
       if self._persist(): #persist in db
+         self.was_recently_created = True
          self._build_relationships() #build up all relationships
+         
          return True
 
       return False
@@ -139,7 +144,6 @@ class Entity(object):
          return self._update_db(self._data)
       else:
          return self._insert_into_db(self._data)
-
       return False
 
    def _delete_in_db(self):
@@ -168,9 +172,11 @@ class Entity(object):
       query = "SELECT {} from {} ".format(", ".join(fields),self.table_name) #TODO don't select *......
       db = self.db
       cursor = db.cursor(dictionary=True)
-
-      if isinstance(id, list):
-         query += "WHERE {} in ({})".format(self.key, ", ".join(id))
+      
+      if isinstance(id, Iterable):
+         ids = list(filter(lambda x: bool(x), id))
+         logging.debug(ids)
+         query += "WHERE {} in ({})".format(self.key_name, ", ".join(ids))
          logging.debug("QUERY: %s", query)
          cursor.execute(query)
          result = cursor.fetchall()
@@ -209,7 +215,7 @@ class Entity(object):
       logging.debug("DATA FROM MODEL: %s", data)
       cursor.execute(sql, data)
       db.commit()
-      if cursor.rowcount > 0:
+      if cursor.rowcount >= 0:
          # set the id, now the class exists!
          # setattr(self, self.key_name, cursor.lastrowid)
          return True
@@ -299,7 +305,7 @@ class Entity(object):
          return self._dirty[name]
       elif name in self._data.keys():
          return self._data[keys]
-      elif len(self.relationships.keys()) > 0 and name in self.relationships.keys():
+      elif name in self.relationships.keys():
          self._relationships[name].find(self)
       else:
          return None
@@ -307,6 +313,27 @@ class Entity(object):
    def __str__(self):
       return self.render_excerpt()
 
+
+class ReadonlyEntity(Entity):
+   @classmethod
+   def find(cls, id = None):
+      instance = cls()
+      return instance._find_in_db(id)  
+
+   @classmethod
+   def create(cls, **data):
+      raise Exception("Cannot create read only entity {}".format(self.name))
+      return True
+
+   def update(self, **data):
+      self._fill(**data)
+      return self.save()
+
+   def delete(self):
+      return True
+   
+   def save(self, **data):
+      return True
 
 #Doran told me to do this, frick that dude
 class HeritableEntity(Entity):

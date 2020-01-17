@@ -14,15 +14,20 @@ app.boot()
 from entities.user import User
 from entities.location import Location
 
-u = User()
-u.name = "asd"
-u.password="asdasd"
-u.locations = [
-   Location(name="test location"),
-   Location(name="test location"),
-   Location(name="test location")
-]
-u.save()
+# u = User()
+# u.name = "asd"
+# u.password="asdasd"
+# u.locations = [
+#    Location(name="test location"),
+#    Location(name="test location"),
+#    Location(name="test location")
+# ]
+# u.save()
 
-print(u.id)
-print(u.render())
+# print(u.id)
+# print(u.render())
+
+
+l = Location(name="test")
+l.user = User(name="asd", password="asdasd")
+l.save()
