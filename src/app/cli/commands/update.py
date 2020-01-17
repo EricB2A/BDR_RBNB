@@ -2,11 +2,12 @@ from .command import Command
 from db.entity_manager import EntityManager
 from db.relationships.many_to_many import ManyToMany
 from db.relationships.one_to_many import OneToMany
+from db.relationships.one_to_one import OneToOne
+
 import sys
 import logging
 import inquirer
-
-class Create(Command):
+class Update(Command):
    
 
    def __init__(self, *args, **kwargs):
@@ -62,21 +63,39 @@ Exmaple usage:
             # Do something for many to many
          elif isinstance(relationship,  OneToMany):
             #get all remote entities
-            questions = [inquirer.Checkbox(name,
+            available_data = list(relationship.find_all())
+            available_data = list(map(lambda x: (x.render_excerpt(), x),available_data))
+            logging.debug(available_data)
+            questions = [inquirer.Checkbox("relation",
                   message="Which {}?".format(name),
-                  choices=relationship.find_all(),
+                  choices=available_data,
             )]
             res = inquirer.prompt(questions)
-            setattr(entity, relationship.name, res)
+            logging.debug(res)
+            setattr(entity, name, res["relation"])
+         elif isinstance(relationship, OneToOne):
+            #get all remote entities
+            available_data = list(relationship.find_all())
+            available_data = list(map(lambda x: (x.render_excerpt(), x),available_data))
+            logging.debug(available_data)
+            questions = [inquirer.List("relation",
+                  message="Which {}?".format(name),
+                  choices=available_data,
+            )]
+            res = inquirer.prompt(questions)
+            logging.debug(res)
+            setattr(entity, name, res["relation"])
 
       #TODO add resume plus confirm
       entity.save()
-      print("{} updated succesfully".format(entity_name))
+      print("{} {} updated succesfully".format(entity_name,entity.id))
 
    def ask_for_fields(self, entity):
-      questions = map(lambda f: inquirer.Text(f, message="{}".format(f)), entity.fields)
+      fields = entity.fields
+      #filter out all relationship fields to not ask for them
+      fields = { k:v for (k,v) in fields.items() if v is not "relationship" }
+      questions = map(lambda f: inquirer.Text(f, message="{}".format(f)), fields)
       answers = inquirer.prompt(questions)
       logging.debug("Creating entity (%s) with values %s", entity, answers)
       for field, value in answers.items():
          setattr(entity, field, value)
-      

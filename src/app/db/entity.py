@@ -193,6 +193,8 @@ class Entity(object):
          cursor.execute(query)
          result = cursor.fetchone()
          logging.debug("FOUND: %s", result)
+         if result.rowcount <= 0:
+            return None
          return self.build(**result)
 
    def _update_db(self, data):
