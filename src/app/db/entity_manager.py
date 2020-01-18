@@ -71,13 +71,6 @@ class EntityManager:
       finally:
          cursor.close()
 
-   def reset_db(self):
-      try:
-         self.destroy_db() #if we can't destroy db that means it doesn't exist
-      except mysql.connector.Error as err:
-         pass
-      self.create_database()
-
    def _connect(self):
       config = Config()
       self.config = config
@@ -96,7 +89,7 @@ class EntityManager:
          
       # try to use the database now and notify user if something went wrong
       try:
-         db_name = self.db_name
+         db_name = self.config.db["database"]
          self.conn.database = db_name
       except mysql.connector.Error as err:
          if err.errno == errorcode.ER_BAD_DB_ERROR:

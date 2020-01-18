@@ -64,6 +64,12 @@ class Entity(object):
       new_entity._fill(**fields)
       return new_entity
 
+   @classmethod
+   def where(criteria):
+      new_entity = cls() 
+      new_entity._fill(**fields)
+      return new_entity
+
    def __init__(self, *args, **fields):
       super(Entity, self).__init__()
       self._data = {}
