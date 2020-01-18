@@ -31,3 +31,7 @@ from entities.location import Location
 l = Location(name="test")
 l.user = User(name="asd", password="asdasd")
 l.save()
+
+l = Location(name="test")
+l.user = User.create(name="asd", password="asdasd")
+l.save()

@@ -58,17 +58,6 @@ class Entity(object):
    def exists(self):
       return self._key is not None
       
-   @classmethod
-   def build(cls, **fields):
-      new_entity = cls() 
-      new_entity._fill(**fields)
-      return new_entity
-
-   @classmethod
-   def where(criteria):
-      new_entity = cls() 
-      new_entity._fill(**fields)
-      return new_entity
 
    def __init__(self, *args, **fields):
       super(Entity, self).__init__()
@@ -78,18 +67,16 @@ class Entity(object):
       self.was_recently_created = False
       self._fill(**fields)
 
-   def _fill(self, **data):
-      if self.key_name in data.keys():
-         self._key = data[self.key_name]
+   @classmethod
+   def build(cls, **fields):
+      new_entity = cls() 
+      new_entity._fill(**fields)
+      return new_entity
 
-      self._dirty = {key:value for (key,value) in data.items() if key in self.fields.keys()}
-      self._relationships = {key:value for (key,value) in data.items() if key in self.relationships.keys()}
-
-   def fresh(self):
-      if not self.exists:
-         return self(**self._dirty)
-      else:
-         self._find_in_db(self.key)
+   @classmethod
+   def where(cls, criteria):
+      new_entity = cls() 
+      return new_entity._search_in_db(criteria)
 
    @classmethod
    def find(cls, id = None):
@@ -104,6 +91,19 @@ class Entity(object):
       instance.save()
       return instance
 
+   def _fill(self, **data):
+      if self.key_name in data.keys():
+         self._key = data[self.key_name]
+
+      self._dirty = {key:value for (key,value) in data.items() if key in self.fields.keys()}
+      self._relationships = {key:value for (key,value) in data.items() if key in self.relationships.keys()}
+
+   def fresh(self):
+      if not self.exists:
+         return self(**self._dirty)
+      else:
+         self._find_in_db(self.key)
+   
    def update(self, **data):
       self._fill(**data)
       return self.save()
@@ -147,7 +147,8 @@ class Entity(object):
 
    def _persist(self):
       if self.exists:
-         return self._update_db(self._data)
+         data = { k:v for (k,v) in self._data.items() if k is not self.key_name} # TODO define if app needs to do this
+         return self._update_db(data)
       else:
          return self._insert_into_db(self._data)
       return False
@@ -203,6 +204,29 @@ class Entity(object):
             return None
          return self.build(**result)
 
+   def _search_in_db(self, criteria):
+      def quote(v):
+         return "`"+v+"`"
+
+      fields = list(self.fields.keys())
+
+      if self.key_name not in fields:
+         fields.insert(0,self.key_name)
+
+      fields = map(quote, fields)
+
+      query = "SELECT {} from {} ".format(", ".join(fields),self.table_name) #TODO don't select *......
+      query += "WHERE {}".format(criteria)
+      db = self.db
+      cursor = db.cursor(dictionary=True)
+      logging.debug("SEARCHING for critera: %s", criteria)
+      logging.debug("QUERY: %s", query)
+      cursor.execute(query)
+      result = cursor.fetchall()
+      logging.debug("FOUND: %s", result)
+      return map(lambda x: self.build(**x), result)
+      
+
    def _update_db(self, data):
       if self.key is None:
          raise Exception("Unable to update entity that doesn't exist")
@@ -225,7 +249,6 @@ class Entity(object):
       db.commit()
       if cursor.rowcount >= 0:
          # set the id, now the class exists!
-         # setattr(self, self.key_name, cursor.lastrowid)
          return True
       else:
          raise Exception("Unable to update in db")

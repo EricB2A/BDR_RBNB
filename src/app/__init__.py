@@ -1,5 +1,5 @@
 
-from cli.cli_manager import Cli
+from app.cli.cli_manager import Cli
 from config import Config
 from db import EntityManager
 from utils.path import get_config_path
@@ -26,14 +26,3 @@ def boot():
       booted = True
    return (config, entity_manager)
 
-def run():
-   manager = Manager()
-   manager.parse_arguments()
-   return manager.run()
-   
-def render(config, db):
-   cli = Cli(config, db)
-   cli.run()
-
-def run():
-   return render(*boot())
