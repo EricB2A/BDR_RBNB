@@ -1,13 +1,13 @@
 import inquirer
 import logging
-from ..entities.user import User
+from ..entities.personne import Personne
 from .page import Page
 from .gui import Gui
 from .page_repository import main
 from .mode_select import mode_select_page
 def register_():
    print("Hello new user, please fill out the following form \n\n")
-   entity = User()
+   entity = Personne()
    answers = None
    fields = [
       "nom",
