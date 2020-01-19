@@ -3,6 +3,12 @@
 
 TO define a one to many relationship you need to define a relationship in your base model and add the foreign key field in the fields of the remote entity.
 
+```
+OneToMany(base_table, foreign_table, foreign_key, local_key)
+```
+
+
+
 Example
 
 __```User```:__
@@ -57,6 +63,10 @@ user.save()
 
 One to one relationships are either a relationship in itself or the opposite of a one to many relationship
 
+```
+OneToOne(base_table, foreign_table, foreign_key, local_key)
+```
+
 Example
 
 
@@ -107,6 +117,55 @@ l.save()
 ```
 
 # Launching a query manually
+
+## Executing a single statement
+
+When executing a single statement, you have multiple operations you can do, either insert or retrieve data.
+The two have very different intents and are used by the mysql connector differently.
+
+Therefor, when retrieving data or insert (or updating) you will have to use different methods.
+
+### Retrieving data
+
+```
+from app.entity_manager import EntityManager
+import logging
+
+em = EntityManager()
+
+db = em.db
+sql = f.read()
+cursor = db.cursor(dictionnary=True)
+res = cursor.execute(sql):
+if res.row_count > 0:
+   #Do something with the data
+
+```
+
+### Inserting data
+
+```
+from app.entity_manager import EntityManager
+import logging
+
+em = EntityManager()
+
+db = em.db
+sql = f.read()
+cursor = db.cursor(dictionnary=True)
+res = cursor.execute(sql)
+
+db.commit()
+
+print(res.rowcount)
+print(res.lastinsertedid)
+
+
+```
+
+You see the main difference here is that you need to commit your changes to the database.
+
+It's basically the only difference. The usage of ```db.commit()``` at the end of your querying.
 
 ## Executing multiple statements
 ```
