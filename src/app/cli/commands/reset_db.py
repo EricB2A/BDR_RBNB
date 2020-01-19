@@ -57,5 +57,5 @@ class ResetDb(Command):
             
             db.commit()
             mcrus.close()
-         except e:
+         except StopIteration as e: #multi cursor execute generates an error in python>=3.7...
             pass

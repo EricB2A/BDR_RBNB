@@ -1,19 +1,23 @@
 import inquirer
 import sys
 import os
+import logging
 class Page(object):
    parent = None
    name = ""
+   title = None
    items = []
    main_callable = None
    next = None
-   def __init__(self, name, parent = None, next = None, should_exit = False):
+
+   def __init__(self, name, parent = None, next = None, should_exit = False, title = None):
       self.name = name
       self.parent = parent
       self.should_exit = should_exit
       self.items = []
       self.next = next
       self.main_callable = None
+      self.title = title
 
    def set_main(self, fnt):
       """
@@ -22,8 +26,14 @@ class Page(object):
       the next or previous page
       """
       self.main_callable = fnt
+      
+   def get_title(self):
+      if self.title is not None:
+         return self.title
+      return self.name
 
    def show(self):
+      logging.debug("Page %s [next=%s, parent=%s]", self.name,self.next, self.parent)
       self.clear()
       if self.main_callable is not None:
          res = self.main_callable()
@@ -44,14 +54,20 @@ class Page(object):
 
       questions.append(('Exit', self.quit))
       
-      res = inquirer.prompt([inquirer.List("choice", message="TITLE OF MENU", choices=questions )])
+      res = inquirer.prompt([inquirer.List("choice", message=self.get_title(), choices=questions )])
       choice = res["choice"]
 
       if isinstance(choice, Page):
          self.clear()
          choice.show()
+
       elif callable(choice):
-         choice()
+         res = choice()
+         if res is not None and res is True:
+            if self.next is not None:
+               self.next.show()
+         else:
+            self.show() #re show this screen
 
    def set_next(self, next):
       self.next = next

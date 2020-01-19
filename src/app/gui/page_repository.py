@@ -1,4 +1,5 @@
 from .page import Page
+from .mode_select import mode_select_page
 def login_():
    username  = input("Username: ")
    password = input("Password: ")
@@ -38,4 +39,4 @@ main.append_item("TEST", lambda : print("AISDASD"))
 
 login = Page("Login")
 login.set_main(login_)
-login.set_next(main)
+login.set_next(mode_select_page)

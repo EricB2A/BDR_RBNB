@@ -7,9 +7,9 @@ from app.config import *
 from app.db import *
 from app.cli.cli_manager import Cli
 from app.gui.gui import Gui
-
+from app.gui.home_page import home
 config, db = app.boot()
 
 g = Gui()
-g.boot()
+g.boot(home)
 g.run()

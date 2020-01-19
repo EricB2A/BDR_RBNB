@@ -1,14 +1,14 @@
 from app.utils import singleton
-from .page_repository import login
 
 @singleton
 class Gui(object):
-   main = login
+   main = None
+
    
    user = None
    user_type = None
 
-   def boot(self):
-      pass
+   def boot(self, main):
+      self.main = main
    def run(self):
       self.main.show()
