@@ -1,4 +1,6 @@
-from ..db.entity import Entity
+from db.entity import Entity
+from db.relationships.one_to_many import OneToMany
+from db.relationships.one_to_one import OneToOne
 
 class BienImmobilier(Entity):
    fields = {
