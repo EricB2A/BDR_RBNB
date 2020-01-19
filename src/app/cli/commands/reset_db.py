@@ -46,12 +46,16 @@ class ResetDb(Command):
          db = em.db
          sql = f.read()
          cursor = db.cursor()
-         mcurs = cursor.execute(sql, multi=True)
-         for result in mcurs:
-            if result.with_rows:
-               logging.debug("Rows added by {}".format(result.statement))
-               logging.debug(reuslt.fetchall())
-            else:
-               logging.debug("Rows affected {} by {}".format(result.rowcount,result.statement))
-         mcrus.close()
-         db.commit()
+         try:
+            mcurs = cursor.execute(sql, multi=True)
+            for result in mcurs:
+               if result.with_rows:
+                  logging.debug("Rows added by {}".format(result.statement))
+                  logging.debug(reuslt.fetchall())
+               else:
+                  logging.debug("Rows affected {} by {}".format(result.rowcount,result.statement))
+            
+            db.commit()
+            mcrus.close()
+         except e:
+            pass
