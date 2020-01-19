@@ -1,7 +1,7 @@
-from .user import User
+from .personne import Personne
 from .location import Location
 
 entity_registrar = {
-   "user" : User,
+   "personne" : personne,
    "location" : Location
 }
