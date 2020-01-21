@@ -192,3 +192,28 @@ VALUES
     ("2020.03.19", 13, null, 10, 11)
 ;
 
+INSERT 
+INTO message(contenu, location_id, author_id)
+VALUES
+    ("Superbe location !", 1, 1),
+    ("Merci pour votre bien.", 2, 1),
+    ("Excellent appartement.", 3, 2),
+    ("A quelle heure arrivez-vous ?", 1, 3),
+    ("Jolies plantes !", 2, 4),
+    ("Bsartek la vue", 3, 4),
+    ("Rue animée.", 4, 1),
+    ("Comment accéder à l'appartement ?", 6, 1),
+    ("Où dois-je laisser les clefs ?", 2, 2),
+    ("Merci d'avoir laissé de quoi manger.", 2, 3),
+    ("Très jolie voisine.", 2, 2),
+    ("Est-il possible de louer votre chat ?", 2, 1)
+;
+
+INSERT 
+INTO review(note, commentaire, location_id)
+VALUES
+    (1, "Excellent", 1),
+    (1, "Mashallah la vue.", 6),
+    (1, "Superbe", 3),
+    (1, "Cool merci !", 2),
+    (1, "Yeee", 5);
