@@ -6,7 +6,6 @@ import inquirer
 from pprint import pprint
 from datetime import datetime
 from datetime import timedelta
-from .mode_select import mode_select_page
 import mysql.connector
 
 em = EntityManager()

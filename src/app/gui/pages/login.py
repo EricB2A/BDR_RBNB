@@ -20,6 +20,8 @@ def login_():
          #userRes = cuGetTypeBien.fetchall()
 
          if len(users) == 1:
+            g = Gui()
+            g.user = users[0]
             userId = users[0].id
             break
          print("L'utilisateur n'existe pas")

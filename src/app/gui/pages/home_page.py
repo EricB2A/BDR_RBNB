@@ -9,4 +9,4 @@ home = Page("home", title="Accueil")
 home.append_item(register_page)
 home.append_item(login)
 
-mode_select_page.set_next(home)
+#mode_select_page.set_next(main)
