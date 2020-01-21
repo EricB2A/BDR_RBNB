@@ -1,9 +1,9 @@
 from app.utils import singleton
-from .page_repository import login
+from .page_repository import menuConnectionPage
 
 @singleton
 class Gui(object):
-   main = login
+   main = menuConnectionPage
    
    user = None
    user_type = None
