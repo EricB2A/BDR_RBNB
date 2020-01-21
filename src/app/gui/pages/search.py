@@ -8,11 +8,6 @@ from datetime import datetime
 from datetime import timedelta
 import mysql.connector
 
-em = EntityManager()
-db = em.db
-
-
-
 def search_():
    def getQueryRes(query):
       cu = db.cursor()
