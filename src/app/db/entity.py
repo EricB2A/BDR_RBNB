@@ -79,6 +79,11 @@ class Entity(object):
       return list(new_entity._search_in_db(criteria))
 
    @classmethod
+   def select(cls, query, where):
+      new_entity = cls() 
+      return list(new_entity._select_in_db(query, where))
+
+   @classmethod
    def find(cls, id = None):
       instance = cls()
       return instance._find_in_db(id)  
@@ -95,7 +100,7 @@ class Entity(object):
       if self.key_name in data.keys():
          self._key = data[self.key_name]
 
-      self._dirty = {key:value for (key,value) in data.items() if key in self.fields.keys()}
+      self._dirty = {key:value for (key,value) in data.items() if key not in self.relationships.keys()}
       self._relationships = {key:value for (key,value) in data.items() if key in self.relationships.keys()}
 
    def fresh(self):
@@ -224,6 +229,31 @@ class Entity(object):
       cursor.execute(query)
       result = cursor.fetchall()
       logging.debug("FOUND: %s", result)
+      return map(lambda x: self.build(**x), result)
+
+   def _select_in_db(self, select, criteria = None):
+      def quote(v):
+         return "`"+v+"`"
+
+      fields = list(self.fields.keys())
+
+      if self.key_name not in fields:
+         fields.insert(0,self.key_name)
+
+      fields = map(quote, fields)
+
+      query = "{} from {} ".format(select,self.table_name) #TODO don't select *......
+      if criteria is not None:
+         query += "WHERE {}".format(criteria)
+      db = self.db
+      cursor = db.cursor(dictionary=True)
+      logging.debug("SEARCHING for critera: %s", criteria)
+      logging.debug("QUERY: %s", query)
+      cursor.execute(query)
+      result = cursor.fetchall()
+      
+      logging.debug("FOUND: %s", result)
+      #return result
       return map(lambda x: self.build(**x), result)
       
 
