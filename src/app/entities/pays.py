@@ -1,4 +1,8 @@
 from db.entity import Entity
 
 class Pays(Entity):
-   pass
+   _table_name = "pays"
+
+   fields = {
+      "nom": "string"
+   }

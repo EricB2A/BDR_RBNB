@@ -3,9 +3,12 @@ from db.relationships.one_to_many import OneToMany
 
 class TypeBien(Entity):
    _table_name = "type_bien"
+   _primary_key = "nom"
+   
    fields = {
-      "type_bien" : "string",
+      "nom":"string"
    }
+
    def render(self):
       pass
    def render_excerpt(self):
