@@ -51,7 +51,7 @@ class Page(object):
       questions = []
       for item in self.items:
          questions.append(item)
-
+      logging.debug("ITEMS %s", self.items)
       questions.append(('Exit', self.quit))
       
       res = inquirer.prompt([inquirer.List("choice", message=self.get_title(), choices=questions )])

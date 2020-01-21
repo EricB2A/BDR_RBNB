@@ -10,19 +10,21 @@ def login_():
    db = em.get_db()
    userId = -1
    while "Verfication de l'utilisateur":
-      username  = input("Email: ")
-      password = input("Password: ")
+      try:
+         username  = input("Email: ")
+         password = input("Password: ")
 
-      #cuGetTypeBien = db.cursor(dictionary=True)
-      users = Personne.where("email= '{}' AND mot_de_passe='{}' LIMIT 0,1".format(username, password))
+         #cuGetTypeBien = db.cursor(dictionary=True)
+         users = Personne.where("email= '{}' AND mot_de_passe='{}' LIMIT 0,1".format(username, password))
 
-      #userRes = cuGetTypeBien.fetchall()
+         #userRes = cuGetTypeBien.fetchall()
 
-      if len(users) == 1:
-         userId = users[0]["id"]
-         break
-      print("L'utilisateur n'existe pas")
-
+         if len(users) == 1:
+            userId = users[0].id
+            break
+         print("L'utilisateur n'existe pas")
+      except KeyboardInterrupt:
+         return False
    return True
 
 login = Page("Login")

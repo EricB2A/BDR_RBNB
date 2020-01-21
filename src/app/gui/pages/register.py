@@ -17,7 +17,7 @@ def register_():
    ]
    questions = list(map(lambda f: inquirer.Text(f, message="{}".format(f)), fields))
    questions.append(inquirer.Text("email","Email"))
-   questions.append(inquirer.Password("password", message="Mot de passe"))
+   questions.append(inquirer.Password("mot_de_passe", message="Mot de passe"))
 
    while "Create a user uniquely with his email":
       answers = inquirer.prompt(questions)
@@ -35,9 +35,11 @@ def register_():
    
    for field, value in answers.items():
       setattr(entity, field, value)
-   logging.debug("Entite personne %s", answers)
-   entity._fill(answers)
-   return entity.save()
+   logging.debug("Entite personne %s", entity)
+   p = Personne.create(**answers)
+   logging.debug("personne %s", p)
+   g = Gui()
+   g.user = p
 
 register_page = Page("Enregistrer un nouvelle utilisateur")
 register_page.set_main(register_)
