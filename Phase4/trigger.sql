@@ -6,8 +6,8 @@ CREATE TRIGGER auto_disable_bien_immo
 AFTER UPDATE ON location
 FOR EACH ROW BEGIN
     IF (NEW.estConfirme = TRUE) THEN
-        UPDATE location SET
-        estConfirme = FALSE
+        UPDATE location 
+        SET estConfirme = FALSE
         WHERE estConfirme IS NULL 
         AND location.bien_immobilier_id = NEW.bien_immobilier_id
         AND (

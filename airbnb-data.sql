@@ -178,17 +178,39 @@ VALUES
 INSERT
 INTO location (date_arrivee, duree, estConfirme, locataire_id, bien_immobilier_id) 
 VALUES 
-    ("13.02.2020", 7, false, 8, 11), 
-    ("12.07.2020", 7, true, 18, 4), 
-    ("15.03.2020", 4, true, 20, 2), 
-    ("09.02.2020", 2, true, 4, 7), 
-    ("24.07.2020", 7, true, 8, 1), 
-    ("24.08.2020", 15, false, 22, 7), 
-    ("02.08.2020", 15, true, 12, 8), 
-    ("15.04.2020", 8, false, 4, 9), 
-    ("14.05.2020", 4, true, 16, 10), 
-    ("24.05.2020", 13, false, 19, 11),
-    ("20.03.2020", 7, null, 19, 11),
-    ("19.03.2020", 13, null, 10, 11)
+    ("2020.02.13", 7, false, 8, 11), 
+    ("2020.07.12", 7, true, 18, 4), 
+    ("2020.03.15", 4, true, 20, 2), 
+    ("2020.02.09", 2, true, 4, 7), 
+    ("2020.07.24", 7, true, 8, 1), 
+    ("2020.08.24", 15, false, 22, 7), 
+    ("2020.08.02", 15, true, 12, 8), 
+    ("2020.04.15", 8, false, 4, 9), 
+    ("2020.04.15", 4, true, 16, 10), 
+    ("2020.05.24", 13, false, 19, 11),
+    ("2020.03.20", 7, null, 19, 11),
+    ("2020.03.19", 13, null, 10, 11)
 ;
+
+INSERT
+INTO fourniture (description, bien_immobilier_id, nom_fourniture)
+VALUES
+    ("Kitchenette", 1, "Cuisine"),
+    ("", 1, "Douche"),
+    ("Grande cuisine lumineuse", 2, "Cuisine"),
+    ("Baignoire", 2, "Baignoire"),
+    ("Salon avec TV", 2, "Salon"),
+    ((SELECT adresse_id from personne WHERE id = 3), "Appartement", 3, 72, 5, "Appartement tout neuf, bien placé", 120.0, 160.0),
+    ("Grande cuisine lumineuse", 3, "Cuisine"),
+    ("Douche", 3, "Douche"),
+    ("Salon avec grande TV", 2, "Salon"),
+    ((SELECT adresse_id from personne WHERE id = 5), "Studio", 5, 30, 1, "Grand studio", 34.9, 45.0),
+    ((SELECT adresse_id from personne WHERE id = 7), "Appartement", 7, 74, 3, "Appartement en centre-ville", 67.0, 80.0),
+    ((SELECT adresse_id from personne WHERE id = 12), "Appartement", 12, 80, 5, "Grand appartement pour fêtes", 103.33, 60.0),
+    ((SELECT adresse_id from personne WHERE id = 15), "Appartement", 15, 54, 3, "Appartement typique", 35.00, 35.0),
+    ((SELECT adresse_id from personne WHERE id = 21), "Villa", 21, 240, 8, "Très grande villa pour vacances de rêves", 350.00, 600.0),
+    ((SELECT adresse_id from personne WHERE id = 23), "Chambre", 23, 12, 1, "Chambre de bonne à l'étage", 23.8, 0.0),
+    ((SELECT adresse_id from personne WHERE id = 17), "Appartement", 17, 81, 6, "Grand appartement, un peu viellot", 145.5, 120.0),
+    ((SELECT adresse_id from personne WHERE id = 13), "Chambre", 13, 10, 1, "Petite chambre", 27.8, 60.0)
+
 
