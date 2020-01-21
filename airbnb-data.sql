@@ -1,3 +1,5 @@
+use airbnb;
+
 INSERT 
 INTO pays (nom)
 VALUES
@@ -99,7 +101,7 @@ VALUES
 
 
 INSERT
-INTO personne (nom, prenom, email, mot_de_passe, addresse_id, genre)
+INTO personne (nom, prenom, email, mot_de_passe, adresse_id, genre)
 VALUES 
     ("Baxter","Joel","Phyllis@Ut.org","at", 2, "Homme"),
     ("Hampton","Peter","Phillip@ut.us","tempor", 7, "Homme"),
