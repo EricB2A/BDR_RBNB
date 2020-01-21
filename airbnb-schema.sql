@@ -92,5 +92,5 @@ CREATE TABLE review (
     note SMALLINT NOT NULL, -- CI: à limité à 5 ou 10 à voir
     commentaire VARCHAR(500),
     location_id INT NOT NULL,
-    FOREIGN KEY (location_id) REFERENCES locations(id)
+    FOREIGN KEY (location_id) REFERENCES location(id)
 );
