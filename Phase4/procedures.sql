@@ -9,7 +9,8 @@ BEGIN
     AND location.estConfirmee IS NULL;
 END //
 
--- Procedure 
+-- Procedure pour valider une location et invalider les locations chevauchantes
+DROP PROCEDURE IF EXISTS valide_location;
 CREATE PROCEDURE valide_location(
     IN loc_id int(11)
 )

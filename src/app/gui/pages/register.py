@@ -13,9 +13,10 @@ def register_():
    fields = [
       "nom",
       "prenom",
-      "genre",
+      
    ]
    questions = list(map(lambda f: inquirer.Text(f, message="{}".format(f)), fields))
+   questions.append(inquirer.List("genre", message="Genre", choices=["Homme", "Femme", "Agender", "Pangender", "Androgyne", "Genre fluide"]))
    questions.append(inquirer.Text("email","Email"))
    questions.append(inquirer.Password("mot_de_passe", message="Mot de passe"))
 

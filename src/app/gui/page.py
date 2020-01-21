@@ -97,6 +97,7 @@ class Page(object):
 
    def _exit(self):
       sys.exit(0)
+      
    @staticmethod
    def clear():
       os.system('cls' if os.name == 'nt' else 'clear')

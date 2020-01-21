@@ -8,14 +8,14 @@ from datetime import datetime
 from datetime import timedelta
 import termtables as tt
 import mysql.connector
+from app.utils.path import get_config_path
+import json
 
+config = {}
+with open(get_config_path("db.json"),"r") as f:
+   config = json.load(f)
 
-db = mysql.connector.connect(
-  host="localhost",
-  user="root",
-  passwd="",
-  database="airbnb"
-)
+db = mysql.connector.connect(**config)
 
 def search_():
    def getQueryRes(query):

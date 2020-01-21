@@ -6,6 +6,8 @@
 
  - Python3
  - pip for python3
+
+ if you are on ubuntu
  - python-dev
 
 

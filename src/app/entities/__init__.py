@@ -7,6 +7,7 @@ from .fourniture import Fourniture
 from .message import Message
 from .pays import Pays
 from .type_fourniture import TypeFourniture
+from .type_bien import TypeBien
 
 entity_registrar = {
    "personne" : Personne,
@@ -17,5 +18,6 @@ entity_registrar = {
    "fourniture": Fourniture,
    "message": Message,
    "pays": Pays,
-   "type_fourniture": TypeFourniture
+   "type_fourniture": TypeFourniture,
+   "type_bien": TypeBien
 }
