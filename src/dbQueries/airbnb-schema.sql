@@ -21,6 +21,7 @@ CREATE TABLE adresse (
    complement_rue VARCHAR(50),
    numero VARCHAR(10),
    npa VARCHAR(10) NOT NULL, -- uUuU mais si on est pas en Suisse on fait comment ?
+   ville VARCHAR(50) NOT NULL,
    PRIMARY KEY (id) ,
    FOREIGN KEY (commune_nom) REFERENCES commune(nom)
 );
@@ -95,4 +96,3 @@ CREATE TABLE review (
     location_id INT NOT NULL,
     FOREIGN KEY (location_id) REFERENCES location(id)
 );
-

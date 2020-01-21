@@ -1,0 +1,6 @@
+{'password': 'root', 'host': 'localhost', 'port': '3306', 'user': 'root'}
+Database does not exist
+AM I STILL CONNECTED BITCH
+True
+Couldn't connect to database, are you sure of your credentials?
+Help with actions, list all actions for example
