@@ -3,8 +3,6 @@ from app.utils import singleton
 @singleton
 class Gui(object):
    main = None
-
-   
    user = None
    user_type = None
 
