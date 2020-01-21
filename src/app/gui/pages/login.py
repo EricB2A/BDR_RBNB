@@ -3,7 +3,7 @@ from app.gui.gui import Gui
 from app.db.entity_manager import EntityManager
 from .mode_select import mode_select_page
 from app.entities.personne import Personne
-
+import logging
 
 def login_():
    em = EntityManager()

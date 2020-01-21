@@ -1,3 +1,5 @@
+use airbnb;
+
 INSERT 
 INTO pays (nom)
 VALUES

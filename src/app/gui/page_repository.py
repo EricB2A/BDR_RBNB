@@ -233,42 +233,42 @@
 #                       choices=goodsRows),
 #    ])
 
-#    # 2h
-#    # TODO laisser l'utilisateur choisir un appartement 
-#    # TODO afficher l'appartement avec les infos 
-#    # TODO faire une location 
+#    2h
+#    TODO laisser l'utilisateur choisir un appartement 
+#    TODO afficher l'appartement avec les infos 
+#    TODO faire une location 
 
-#    # 2h
-#    # TODO faire une vue ou plusieurs (locataire / proriétaire) vu pour
-#       # - voir ses location passé
-#       # - voir ses locaition en cours 
-#       # - voir ses location en attente
-#       # - 
+#    2h
+#    TODO faire une vue ou plusieurs (locataire / proriétaire) vu pour
+#       - voir ses location passé
+#       - voir ses locaition en cours 
+#       - voir ses location en attente
+#       - 
 
-#    # 2h
-#    # TODO faire une procedure pour créer une adresse sans duplication de pays et commune
-#    # TODO faire une procedure pour vérifier la disponiblité d'un appartement
-#    # TODO faire une proecdure pour vérifier qu'un utilisateur à pas déjà un appartement en cours de locaition
-#       # permet qu'il loue la moitié du site, de plus le compte qui loue doit être celui qui va y habiter
+#    2h
+#    TODO faire une procedure pour créer une adresse sans duplication de pays et commune
+#    TODO faire une procedure pour vérifier la disponiblité d'un appartement
+#    TODO faire une proecdure pour vérifier qu'un utilisateur à pas déjà un appartement en cours de locaition
+#       permet qu'il loue la moitié du site, de plus le compte qui loue doit être celui qui va y habiter
 
-#    # 2h
-#    # TODO suppression d'un appartement
-#       # TODO faire une procedure pour vérifier qu'il n'y a pas de location en cours ou à venir
-#       # TODO appeler la procédure de suppresion d'adresse 
-#       # TODO si 1er procedure ok -> soft delete
-#       #
+#    2h
+#    TODO suppression d'un appartement
+#       TODO faire une procedure pour vérifier qu'il n'y a pas de location en cours ou à venir
+#       TODO appeler la procédure de suppresion d'adresse 
+#       TODO si 1er procedure ok -> soft delete
+      
    
-#    # 2h30
-#    # TODO création d'un appartement 
-#       # TODO le faire de manière séquentielle
-#          # TODO créer l'appartement (utilisation de création d'adresse)
-#          # TODO puis demander les fourniture
+#    2h30
+#    TODO création d'un appartement 
+#       TODO le faire de manière séquentielle
+#          TODO créer l'appartement (utilisation de création d'adresse)
+#          TODO puis demander les fourniture
 
-#       # TODO ? procédure ? 
+#       TODO ? procédure ? 
 
-#    # 1h 
-#    # TODO création de l'utilisateur voir ce qui a déjà été fait
-#    # TODO modifier son profil
+#    1h 
+#    TODO création de l'utilisateur voir ce qui a déjà été fait
+#    TODO modifier son profil
 
  
 

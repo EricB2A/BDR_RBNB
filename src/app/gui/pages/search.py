@@ -6,10 +6,20 @@ import inquirer
 from pprint import pprint
 from datetime import datetime
 from datetime import timedelta
+import termtables as tt
 import mysql.connector
+
+
+db = mysql.connector.connect(
+  host="localhost",
+  user="root",
+  passwd="",
+  database="airbnb"
+)
 
 def search_():
    def getQueryRes(query):
+
       cu = db.cursor()
       cu.execute(query)
       return cu.fetchall()
@@ -206,87 +216,19 @@ def search_():
    # 14 => tarif journalier 
    # 15 => charges 
 
+
+   # POUR LINSTANT ON AFFICHE PAS LES FOURNITURE CAR TROP DE PLACE
+   #fournitureRes = getQueryRes("SELECT nom_fourniture FROM fourniture WHERE bien_immobilier_id = {}".format(good[0]))
+   # fournitures = ""
+   # for fourniture in fournitureRes:
+   #    fournitures += fourniture[0]+" "
+
    # TODO ATTENTION SI VILLE / CITY disparait, faire - 1 au index à partir de 11
-   for good in goodsRes:
-      goodId = good[0]
-      # goodDisplay = "{}: nombre de places: {} | tarif: {} | charges: {} | Superficie: {} m² | type de bien : {} | adresse: {} {} {} {}".format(good[3], good[2], good[14],good[15],good[1], good[5], good[9], good[12], good[10], good[7]  )
-      goodDisplay = "{}: nombre de places: {} | Superficie: {} m² | type de bien : {} | adresse: {} {} {} {}".format(good[3], good[2], good[14], good[5], good[9], good[12], good[10], good[7]  )
-      fournitureRes = getQueryRes("SELECT nom_fourniture FROM fourniture WHERE bien_immobilier_id = {}".format(good[0]))
-      
-      fournitures = ""
-      for fourniture in fournitureRes:
-         fournitures += fourniture[0]+" "
-
-      avaiblableFourniture = "type de fournitures disponibles: {}".format(fournitures)
-      # goodsRows.append(goodDisplay + avaiblableFourniture)
-      goodsRows.append(goodDisplay )
-   
-   goodChoice = inquirer.prompt([
-      inquirer.List('interests',
-                      message="Résultat de la cherche",
-                      choices=goodsRows),
-   ])
-
-   # 2h
-   # TODO laisser l'utilisateur choisir un appartement 
-   # TODO afficher l'appartement avec les infos 
-   # TODO faire une location 
-
-   # 2h
-   # TODO faire une vue ou plusieurs (locataire / proriétaire) vu pour
-      # - voir ses location passé
-      # - voir ses locaition en cours 
-      # - voir ses location en attente
-      # - 
-
-   # 2h
-   # TODO faire une procedure pour créer une adresse sans duplication de pays et commune
-   # TODO faire une procedure pour vérifier la disponiblité d'un appartement
-   # TODO faire une proecdure pour vérifier qu'un utilisateur à pas déjà un appartement en cours de locaition
-      # permet qu'il loue la moitié du site, de plus le compte qui loue doit être celui qui va y habiter
-
-   # 2h
-   # TODO suppression d'un appartement
-      # TODO faire une procedure pour vérifier qu'il n'y a pas de location en cours ou à venir
-      # TODO appeler la procédure de suppresion d'adresse 
-      # TODO si 1er procedure ok -> soft delete
-      #
-   
-   # 2h30
-   # TODO création d'un appartement 
-      # TODO le faire de manière séquentielle
-         # TODO créer l'appartement (utilisation de création d'adresse)
-         # TODO puis demander les fourniture
-
-      # TODO ? procédure ? 
-
-   # 1h 
-   # TODO création de l'utilisateur voir ce qui a déjà été fait
-   # TODO modifier son profil
-
- 
 
    input("ATTEND SEARCH")
    return True
 
 
-# # connection page
-# connectionPage = Page("Connexion")
-# connectionPage.set_main(login_)
-
-
-# # create user page
-# creationUserPage = Page("Creation utilisateur")
-# creationUserPage.set_main(creationUser)
-
 # Search page
 search = Page("search")
 search.set_main(search_)
-
-# mainMenuPage = Page("Menu principale", should_exit=True)
-# mainMenuPage.append_item(search)
-
-# connectionPage.set_next(mainMenuPage)
-# creationUserPage.set_next(mainMenuPage)
-
-
