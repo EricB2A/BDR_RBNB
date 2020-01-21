@@ -24,15 +24,16 @@ CREATE TABLE adresse (
    PRIMARY KEY (id) ,
    FOREIGN KEY (commune_nom) REFERENCES commune(nom)
 );
+
 CREATE TABLE personne (
     id INT PRIMARY KEY AUTO_INCREMENT,
     nom VARCHAR(50) NOT NULL,
     prenom VARCHAR(50) NOT NULL,
-    email VARCHAR(254) NOT NULL, -- => rfc5321
+    email VARCHAR(80) NOT NULL, -- => should be 254 => rfc5321 BUT UNIQUE MAX 80~
     mot_de_passe VARCHAR(64) NOT NULL,
     adresse_id INT,
     genre ENUM('Homme', 'Femme', 'Agender', 'Pangender', 'Androgyne', 'Genre fluide' ),
-    UNIQUE (email),
+    UNIQUE (email), 
     FOREIGN KEY (adresse_id) REFERENCES adresse(id)
 );
 
@@ -92,5 +93,6 @@ CREATE TABLE review (
     note SMALLINT NOT NULL, -- CI: à limité à 5 ou 10 à voir
     commentaire VARCHAR(500),
     location_id INT NOT NULL,
-    FOREIGN KEY (location_id) REFERENCES locations(id)
+    FOREIGN KEY (location_id) REFERENCES location(id)
 );
+
