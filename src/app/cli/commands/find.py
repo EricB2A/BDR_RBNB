@@ -9,6 +9,7 @@ import logging
 import inquirer
 import termtables as tt
 
+
 class Find(Command):
    headers = list()
 
