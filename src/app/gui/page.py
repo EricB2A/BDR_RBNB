@@ -103,5 +103,5 @@ class Page(object):
 
 if __name__ == "__main__":
 
-   from .page_repository import main
-   main.show()
+   from pages.home_page import home
+   home.show()

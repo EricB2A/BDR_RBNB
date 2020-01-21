@@ -76,7 +76,7 @@ class Entity(object):
    @classmethod
    def where(cls, criteria):
       new_entity = cls() 
-      return new_entity._search_in_db(criteria)
+      return list(new_entity._search_in_db(criteria))
 
    @classmethod
    def find(cls, id = None):

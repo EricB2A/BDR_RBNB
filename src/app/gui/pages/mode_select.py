@@ -1,5 +1,5 @@
-from .page import Page
-from .gui import Gui
+from app.gui.page import Page
+from app.gui.gui import Gui
 #from .page_repository import main
 
 mode_select_page = Page("User type select")
