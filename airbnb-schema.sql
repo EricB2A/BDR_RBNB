@@ -60,7 +60,7 @@ CREATE TABLE location (
     id INT PRIMARY KEY AUTO_INCREMENT,
     date_arrivee DATE NOT NULL, -- changé de date
     duree INT NOT NULL,
-    estConfirme BOOLEAN NOT NULL DEFAULT 0,
+    estConfirme BOOLEAN  DEFAULT NULL,
     locataire_id INT NOT NULL,
     bien_immobilier_id INT NOT NULL,
     FOREIGN KEY (locataire_id) REFERENCES personne(id),
