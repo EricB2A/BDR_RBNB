@@ -17,3 +17,14 @@ INNER JOIN location
 WHERE location.estConfirmee <> FALSE
 ;
 
+-- Vue des locations d'un utilisateur annulées
+CREATE VIEW location_personne AS
+SELECT bien_immobilier_id, date_arrivee, duree, estConfirmee, personne.id
+FROM personne
+INNER JOIN location
+    ON location.locataire_id = personne.id
+WHERE location.estConfirmee = FALSE
+AND location.date_arrivee < NOW()
+;
+
+-- Vue 
