@@ -1,7 +1,10 @@
-import inquirer
+import PyInquirer
 import sys
 import os
 import logging
+from pprint import pprint
+
+
 class Page(object):
    parent = None
    name = ""
@@ -52,10 +55,24 @@ class Page(object):
       for item in self.items:
          questions.append(item)
       logging.debug("ITEMS %s", self.items)
-      questions.append(('Exit', self.quit))
+      questions.append(("Exit", self.quit)) # self.quit 
+
+      inqQuestion = [ {
+        'type': 'list',
+        'name': 'choicePage',
+        'message': self.get_title(),
+        'choices': list(map(lambda x: x[0], questions)),
+      }]
+      questionResponse=PyInquirer.prompt(inqQuestion)
+      #TODO à supprimer
+      #res = inquirer.prompt([inquirer.List("choice", message=self.get_title(), choices=questions )])
       
-      res = inquirer.prompt([inquirer.List("choice", message=self.get_title(), choices=questions )])
-      choice = res["choice"]
+      #TODO modif inquirer -> PyInquirer
+      for question in questions:
+         if question[0] is questionResponse['choicePage']:
+            choice = question[1]
+            break
+
 
       if isinstance(choice, Page):
          self.clear()
