@@ -14,7 +14,7 @@ def get_address():
       inquirer.List("commune_nom", message="Commune", choices=list(commune_mapping.keys()))
    ]
    answers = inquirer.prompt(fields)
-   if answers is None:
+   if answers is None and not len(answers.keys()):
       return None
    answers["commune_nom"] = commune_mapping[answers["commune_nom"]]
    return answers

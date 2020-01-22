@@ -36,10 +36,10 @@ def building_modal(building = None):
 
    fields = [
       inquirer.Text("description", message = "Description"),
-      inquirer.Text("charges", message="Charges"),
-      inquirer.Text("tarif_journalier", message="Tarifs journaliers"),
-      inquirer.Text("capacite", message="Capacité"),
-      inquirer.Text("taille", message="Taille"),
+      inquirer.Numeric("charges", message="Charges"),
+      inquirer.Numeric("tarif_journalier", message="Tarifs journaliers"),
+      inquirer.Numeric("capacite", message="Capacité"),
+      inquirer.Numeric("taille", message="Taille"),
       inquirer.List("type_bien_nom", message="Type de bien", choices=list(map(lambda x: x.nom,type_bien)), default=type_bien_default)
    ]
 
@@ -50,7 +50,10 @@ def building_modal(building = None):
    answers = inquirer.prompt(fields)
    if answers is None:
       return False
+
    answers = { k:v for k,v in answers.items() if str(v).strip() } #filter out empty answers
+   if not len(answers.keys()):
+      return False
    
    if building.exists and answers["address_change"] is True:
       query = "SET FOREIGN_KEY_CHECKS=0; DELETE FROM adresse WHERE id = {}; SET FOREIGN_KEY_CHECKS=1;".format(building.adresse_id)
