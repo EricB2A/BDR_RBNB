@@ -50,4 +50,3 @@ END//
 
 DELIMITER ;
 
--- Trigger
