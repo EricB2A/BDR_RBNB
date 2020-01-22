@@ -13,13 +13,25 @@ class NumericValidate(Validator):
    def validate(self, document):
       try:
          val = float(document.text)
-         return True
+         if val:
+            return True
+         else:
+            raise ValidationError(
+                message='Please enter a valid numeric value',
+                cursor_position=len(document.text))
       except ValueError:
          raise ValidationError(
                 message='Please enter a valid numeric value',
                 cursor_position=len(document.text))
    
-
+class RequiredValidator(Validator):
+   def validate(self, document):
+      if len(document.text):
+         return True
+      else:
+         raise ValidationError(
+               message='Please enter a value',
+               cursor_position=len(document.text))
 
 def Text(name, message = None, default = "", validate = None, filter_ = None):
    return {
@@ -30,6 +42,10 @@ def Text(name, message = None, default = "", validate = None, filter_ = None):
       'validate' : validate,
       'filter': filter_
    }
+   
+def RequiredText(name, message = None, default = "", filter_ = None):
+   return Text(name, message, default, RequiredValidator, filter_= filter_ )
+
 def Email(name, message = None, default = ""):
    return Text(name, message, default, EmailValidator )
 

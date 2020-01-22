@@ -12,6 +12,16 @@ BEGIN
 END //
 
 -- Procedure pour valider une location et invalider les locations chevauchantes
+DROP PROCEDURE IF EXISTS valide_location;
+CREATE PROCEDURE valide_location(
+    IN loc_id int(11)
+)
+BEGIN
+	DECLARE bien_immo int(11);
+    DECLARE date_arr DATE;
+    DECLARE date_dep DATE;
+    IF ((SELECT COUNT(id) FROM location WHERE id = loc_id) = 1) THEN 
+		SET bien_immo = (SELECT bien_immobilier_id FROM location WHERE id = loc_id);
 DROP PROCEDURE IF EXISTS valide_location_chevauchant;
 CREATE PROCEDURE valide_location_chevauchant(
     IN loc_id int(11)
@@ -35,3 +45,5 @@ BEGIN
 END //
 
 DELIMITER ;
+
+

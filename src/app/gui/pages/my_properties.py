@@ -35,7 +35,7 @@ def building_modal(building = None):
    type_bien_default = building.type_bien_nom if building.exists else None
 
    fields = [
-      inquirer.Text("description", message = "Description"),
+      inquirer.RequiredText("description", message = "Description"),
       inquirer.Numeric("charges", message="Charges"),
       inquirer.Numeric("tarif_journalier", message="Tarifs journaliers"),
       inquirer.Numeric("capacite", message="Capacité"),
