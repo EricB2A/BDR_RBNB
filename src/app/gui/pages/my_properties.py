@@ -33,7 +33,7 @@ def building_modal(building = None):
    type_bien = TypeBien.find()
 
    type_bien_default = building.type_bien_nom if building.exists else None
-   
+
    fields = [
       inquirer.Text("description", message = "Description"),
       inquirer.Text("charges", message="Charges"),
@@ -155,6 +155,8 @@ def my_properties_():
       return True
 
    building_id = input("\n Numéro du bien: ")
+   if not len(building_id):
+      return False
    building_id = int(building_id)
    building_by_id = { x["bien_id"]:x for x in my_rentals }
    logging.debug("MES APPARTEMENTS %s",building_by_id)
@@ -239,6 +241,9 @@ def waiting_rentals():
 
    #Check that it actually is our building
    building_id = input("\n Numéro du bien: ")
+   if not len(building_id):
+      return False
+
    building_id = int(building_id)
    building_by_id = { x["bien_immobilier_id"]:x for x in my_rentals }
    logging.debug(building_by_id)
@@ -417,6 +422,8 @@ def rentals_future():
 
    #Check that it actually is our building
    building_id = input("\n Numéro du bien: ")
+   if not len(building_id):
+      return False
    building_id = int(building_id)
    building_by_id = { x["bien_immobilier_id"]:x for x in my_rentals }
    logging.debug(building_by_id)
