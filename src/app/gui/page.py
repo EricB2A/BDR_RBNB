@@ -9,7 +9,7 @@ class Page(object):
    parent = None
    name = ""
    title = None
-   items = []
+   items = {}
    main_callable = None
    next = None
 
@@ -17,7 +17,8 @@ class Page(object):
       self.name = name
       self.parent = parent
       self.should_exit = should_exit
-      self.items = []
+      self.items = {}
+
       self.next = next
       self.main_callable = None
       self.title = title
@@ -51,28 +52,22 @@ class Page(object):
          else:
             self.quit()
 
-      questions = []
-      for item in self.items:
-         questions.append(item)
+      questions = list(self.items.keys())
       logging.debug("ITEMS %s", self.items)
-      questions.append(("Exit", self.quit)) # self.quit 
+      questions.append("Exit") # self.quit 
 
       inqQuestion = [ {
         'type': 'list',
         'name': 'choicePage',
         'message': self.get_title(),
-        'choices': list(map(lambda x: x[0], questions)),
+        'choices': questions,
       }]
       questionResponse=PyInquirer.prompt(inqQuestion)
-      #TODO à supprimer
-      #res = inquirer.prompt([inquirer.List("choice", message=self.get_title(), choices=questions )])
-      
-      #TODO modif inquirer -> PyInquirer
-      for question in questions:
-         if question[0] is questionResponse['choicePage']:
-            choice = question[1]
-            break
+      choice = questionResponse['choicePage']
 
+      if choice == "Exit":
+         self.quit()
+         return
 
       if isinstance(choice, Page):
          self.clear()
@@ -97,9 +92,9 @@ class Page(object):
    def append_item(self, item, name = None):
       if isinstance(item, Page):
          item.set_parent(self)
-         self.items.append( (item.name, item) )
+         self.items[item.name] = item
       else:
-         self.items.append( (name, item) )
+         self.items[ name ] =  item
       
       return self
    def quit(self):
