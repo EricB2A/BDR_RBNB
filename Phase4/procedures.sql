@@ -11,39 +11,22 @@ BEGIN
     AND location.estConfirmee IS NULL;
 END //
 
+DELIMITER ;
 -- Procedure pour valider une location et invalider les locations chevauchantes
-DROP PROCEDURE IF EXISTS valide_location;
-CREATE PROCEDURE valide_location(
-    IN loc_id int(11)
-)
-BEGIN
-	DECLARE bien_immo int(11);
-    DECLARE date_arr DATE;
-    DECLARE date_dep DATE;
-    IF ((SELECT COUNT(id) FROM location WHERE id = loc_id) = 1) THEN 
-		SET bien_immo = (SELECT bien_immobilier_id FROM location WHERE id = loc_id);
 DROP PROCEDURE IF EXISTS valide_location_chevauchant;
+DELIMITER //
 CREATE PROCEDURE valide_location_chevauchant(
     IN loc_id int(11)
 )
 BEGIN
-    IF (SELECT COUNT(id) FROM location
-        WHERE id = loc_id) = 1
-        THEN UPDATE location
-             SET estConfirmee = TRUE
-             WHERE id = loc_id;
-            UPDATE location
-            SET estConfirme = FALSE
-            WHERE estConfirme IS NULL
-            AND location.bien_immobilier_id = NEW.bien_immobilier_id
-            AND (
-            (location.date_arrivee > NEW.date_arrivee AND location.date_arrivee < (NEW.date_arrivee + NEW.duree))
-             OR (location.date_arrivee + duree > NEW.date_arrivee AND location.date_arrivee + duree < (NEW.date_arrivee + NEW.duree))
-             OR (location.date_arrivee < NEW.date_arrivee AND location.date_arrivee + location.duree > NEW.date_arrivee)
-        );
-    END IF;
+			UPDATE location t1
+			INNER JOIN location as t2
+            ON t1.bien_immobilier_id = t2.bien_immobilier_id
+            SET t1.estConfirme = IF(t1.id = loc_id, TRUE, FALSE)
+			WHERE t1.estConfirme IS NULL
+            AND t2.id = loc_id
+			AND ( dates_superposees(t1.date_arrivee, t2.date_arrivee, t1.duree, t2.duree) IS TRUE
+         );
 END //
 
 DELIMITER ;
-
-
