@@ -34,7 +34,6 @@ def displayRental():
         biens.append([location["capacite"], location["taille"], location["type_bien"], location["description"], location["rue"], location["commune"], location["etat"]])
 
     if biens:
-        pprint(biens)
         print( tt.to_string(
                 data=biens,
                 header=headerBiens,

@@ -8,7 +8,7 @@ from app.entities.type_bien import TypeBien
 from app.entities.addrese import Addresse
 from app.gui.page import Page
 from app.gui.gui import Gui
-
+import logging
 from app.utils.path import get_config_path
 
 config = {}
@@ -27,6 +27,7 @@ def displayRental():
 
     # a ajouter avant where 
     query = "SELECT * FROM location_personne INNER JOIN search_biens ON bien_immobilier_id = search_biens.bien_id WHERE location_personne.date_arrivee > NOW() AND location_personne.estConfirme IS NULL AND personne_id = {}".format(g.user.id) 
+    logging.debug(query)
     locations = getQueryRes(query)
     headerBiens = ["Cap. person.", "Taille (m²)", "type_bien", "Description", "Rue","Commune", "Etat"]
     
@@ -35,7 +36,6 @@ def displayRental():
         biens.append([location["capacite"], location["taille"], location["type_bien"], location["description"], location["rue"], location["commune"], location["etat"]])
 
     if biens:
-        pprint(biens)
         print( tt.to_string(
                 data=biens,
                 header=headerBiens,
