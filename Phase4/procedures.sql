@@ -12,6 +12,7 @@ BEGIN
 END //
 
 DELIMITER ;
+
 -- Procedure pour valider une location et invalider les locations chevauchantes
 -- DROP PROCEDURE IF EXISTS valide_location_chevauchant;
 -- DELIMITER //

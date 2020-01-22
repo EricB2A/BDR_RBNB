@@ -1,8 +1,8 @@
 use airbnb;
 
 -- Trigger pour infirmer les locations si une autre à la même date est confirmée.
-DELIMITER //
 DROP TRIGGER IF EXISTS auto_disable_bien_immo;
+DELIMITER //
 CREATE TRIGGER auto_disable_bien_immo
 AFTER UPDATE ON location
 FOR EACH ROW BEGIN
@@ -18,9 +18,11 @@ FOR EACH ROW BEGIN
         );
     END IF;
 END//
+DELIMITER ;
 
 -- CI: Une review ne peut être faite qu'une fois la date de fin de réservation (date + duree) passée.
 DROP TRIGGER IF EXISTS ci_revue_apres_fin_location;
+DELIMITER //
 CREATE TRIGGER ci_revue_apres_fin_location
 BEFORE INSERT ON review
 FOR EACH ROW BEGIN
@@ -28,9 +30,11 @@ FOR EACH ROW BEGIN
         signal sqlstate '45000';
     END IF;
 END//
+DELIMITER ;
 
 -- CI: Si une Personne envoi un Message, alors ce dernier doit être le Propriétaire ou le Locataire de la Location.
 DROP TRIGGER IF EXISTS ci_envoi_messaage;
+DELIMITER //
 CREATE TRIGGER ci_envoi_messaage
 BEFORE INSERT ON message
 FOR EACH ROW BEGIN
@@ -44,9 +48,6 @@ FOR EACH ROW BEGIN
     END IF;
 
 END//
-
-
-
 
 DELIMITER ;
 
