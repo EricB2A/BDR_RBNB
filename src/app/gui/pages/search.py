@@ -280,5 +280,5 @@ def search_():
 
 
 # Search page
-search = Page("search")
+search = Page("search", title="Rechercher un bien")
 search.set_main(search_)

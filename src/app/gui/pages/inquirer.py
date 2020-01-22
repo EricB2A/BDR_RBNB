@@ -13,7 +13,12 @@ class NumericValidate(Validator):
    def validate(self, document):
       try:
          val = float(document.text)
-         return True
+         if val:
+            return True
+         else:
+            raise ValidationError(
+                message='Please enter a valid numeric value',
+                cursor_position=len(document.text))
       except ValueError:
          raise ValidationError(
                 message='Please enter a valid numeric value',
