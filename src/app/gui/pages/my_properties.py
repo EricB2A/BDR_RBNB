@@ -162,7 +162,7 @@ def my_properties_():
    logging.debug("MES APPARTEMENTS %s",building_by_id)
 
    if building_id not in building_by_id.keys():
-      print("Hey you're trying to update something that isn't yours fuck off")
+      print("Vous ne pouvez editer ce bien.")
       Page.wait_input()
       return False
 
@@ -248,7 +248,7 @@ def waiting_rentals():
    building_by_id = { x["bien_immobilier_id"]:x for x in my_rentals }
    logging.debug(building_by_id)
    if building_id not in building_by_id.keys():
-      print("Hey you're trying to update something that isn't yours fuck off")
+      print("Vous ne pouvez editer ce bien.")
       Page.wait_input()
       return False
    #Build query
@@ -428,7 +428,7 @@ def rentals_future():
    building_by_id = { x["bien_immobilier_id"]:x for x in my_rentals }
    logging.debug(building_by_id)
    if building_id not in building_by_id.keys():
-      print("Hey you're trying to update something that isn't yours fuck off")
+      print("Vous ne pouvez editer ce bien.")
       Page.wait_input()
       return False
    #Build query
