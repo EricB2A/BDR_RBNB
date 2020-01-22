@@ -33,7 +33,7 @@ def building_modal(building = None):
    type_bien = TypeBien.find()
 
    type_bien_default = building.type_bien_nom if building.exists else None
-
+   
    fields = [
       inquirer.Text("description", message = "Description"),
       inquirer.Text("charges", message="Charges"),
@@ -51,15 +51,22 @@ def building_modal(building = None):
    if answers is None:
       return False
    answers = { k:v for k,v in answers.items() if str(v).strip() } #filter out empty answers
-   data_for_building = {k:v for k,v in answers.items() if k is not "address_change"}
-   building._fill(**data_for_building)
-
+   
    if building.exists and answers["address_change"] is True:
-      building.addresse.delete() #destroy the current address   
+      query = "SET FOREIGN_KEY_CHECKS=0; DELETE FROM adresse WHERE id = {}; SET FOREIGN_KEY_CHECKS=1;".format(building.adresse_id)
+      cursor = db.cursor()
+      logging.debug("QUERY: %s", query)
+      for res in cursor.execute(query, multi=True):
+         pass
+      db.commit()
+      building.adresse_id = None
+
    # saving part
    g = Gui()
    current_user = g.user
-
+   data_for_building = {k:v for k,v in answers.items() if k is not "address_change"}
+   building._fill(**data_for_building)
+   
    if not building.exists:
       try:
          address_data = get_address()

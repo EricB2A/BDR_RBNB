@@ -17,6 +17,6 @@ class BienImmobilier(Entity):
    
    relationships = {
       "proprietaire": OneToOne("bien_immobilier", "personne", "id", "proprietaire_id"),
-      "addresse": OneToOne("bien_immobilier", "addresse", "id", "addresse_id"),
+      "adresse": OneToOne("bien_immobilier", "adresse", "id", "adresse_id"),
       "type_bien": OneToOne("bien_immobilier", "type_bien", "nom", "type_bien_nom"),
    }
