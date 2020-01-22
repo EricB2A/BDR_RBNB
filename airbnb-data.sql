@@ -202,7 +202,6 @@ VALUES
     ("Salon avec TV", 2, "Salon"),
     ("Grande cuisine lumineuse", 3, "Cuisine"),
     ("Douche", 3, "Douche"),
-<<<<<<< HEAD
     ("Salon avec grande TV", 3, "Salon"),
     ("Salon/Cuisine", 4, "Salon"),
     ("Salon/Cuisine", 4, "Cuisine"),
@@ -228,16 +227,6 @@ VALUES
     ("Douche commune", 11, "Douche")
 ;
 
-=======
-    ("Salon avec grande TV", 2, "Salon"),
-    ((SELECT adresse_id from personne WHERE id = 5), "Studio", 5, 30, 1, "Grand studio", 34.9, 45.0),
-    ((SELECT adresse_id from personne WHERE id = 7), "Appartement", 7, 74, 3, "Appartement en centre-ville", 67.0, 80.0),
-    ((SELECT adresse_id from personne WHERE id = 12), "Appartement", 12, 80, 5, "Grand appartement pour fêtes", 103.33, 60.0),
-    ((SELECT adresse_id from personne WHERE id = 15), "Appartement", 15, 54, 3, "Appartement typique", 35.00, 35.0),
-    ((SELECT adresse_id from personne WHERE id = 21), "Villa", 21, 240, 8, "Très grande villa pour vacances de rêves", 350.00, 600.0),
-    ((SELECT adresse_id from personne WHERE id = 23), "Chambre", 23, 12, 1, "Chambre de bonne à l'étage", 23.8, 0.0),
-    ((SELECT adresse_id from personne WHERE id = 17), "Appartement", 17, 81, 6, "Grand appartement, un peu viellot", 145.5, 120.0),
-    ((SELECT adresse_id from personne WHERE id = 13), "Chambre", 13, 10, 1, "Petite chambre", 27.8, 60.0)
 INSERT 
 INTO message(contenu, location_id, author_id)
 VALUES
@@ -263,4 +252,3 @@ VALUES
     (1, "Superbe", 3),
     (1, "Cool merci !", 2),
     (1, "Yeee", 5);
->>>>>>> 5b8c03830eda5fe19df79833fe77dd6a224133e3
