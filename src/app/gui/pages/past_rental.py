@@ -27,7 +27,8 @@ def displayRental():
     # a ajouter avant where 
     query = "SELECT * FROM location_personne INNER JOIN search_biens ON bien_immobilier_id = search_biens.bien_id WHERE DATE_ADD(location_personne.date_arrivee, INTERVAL location_personne.duree DAY) < NOW() AND location_personne.estConfirme = TRUE AND personne_id = {}".format(g.user.id) 
     locations = getQueryRes(query)
-    headerBiens = ["Cap. person.", "Taille (m²)", "type_bien", "Description", "Rue","Commune", "Etat", "date_arrivee", "date_depart"]
+    headerBiens = ["Cap. person.", "Taille (m²)", "type_bien", "Description", "Rue","Commune", "Etat", "date arrivee", "date depart"]
+
     
     biens = []
     for location in locations:

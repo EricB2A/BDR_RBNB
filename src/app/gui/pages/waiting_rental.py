@@ -29,7 +29,8 @@ def displayRental():
     query = "SELECT * FROM location_personne INNER JOIN search_biens ON bien_immobilier_id = search_biens.bien_id WHERE location_personne.date_arrivee > NOW() AND location_personne.estConfirme IS NULL AND personne_id = {}".format(g.user.id) 
     logging.debug(query)
     locations = getQueryRes(query)
-    headerBiens = ["Cap. person.", "Taille (m²)", "type_bien", "Description", "Rue","Commune", "Etat", "date_arrivee", "date_depart"]
+    headerBiens = ["Cap. person.", "Taille (m²)", "type_bien", "Description", "Rue","Commune", "Etat", "date arrivee", "date depart"]
+
     
     biens = []
     for location in locations:
