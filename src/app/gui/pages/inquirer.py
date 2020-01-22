@@ -1,4 +1,13 @@
-from PyInquirer import style_from_dict, Token, prompt as prompt_, Separator
+from PyInquirer import style_from_dict, Token, prompt as prompt_, Separator, Validator, ValidationError
+import regex
+
+class EmailValidator(Validator):
+    def validate(self, document):
+        ok = regex.match(r".+\@.+\..+", document.text)
+        if not ok:
+            raise ValidationError(
+                message='Please enter a valid email',
+                cursor_position=len(document.text))  # Move cursor to end
 
 def Text(name, message = None, default = "", validate = None):
    return {
@@ -8,6 +17,9 @@ def Text(name, message = None, default = "", validate = None):
       'default' : default,
       'validate' : validate,
    }
+def Email(name, message = None, default = ""):
+   return Text(name, message, default, EmailValidator )
+
 def Password(name, message = None, default = "", validate = None):
    return {
       'type': 'password',

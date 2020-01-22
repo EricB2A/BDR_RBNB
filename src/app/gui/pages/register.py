@@ -15,14 +15,17 @@ def register_():
       "nom",
       "prenom",
    ]
-   questions = list(map(lambda f: inquirer.Text(f, message="{}".format(f)), fields))
-   questions.append(inquirer.List("genre", message="Genre", choices=["Homme", "Femme", "Agender", "Pangender", "Androgyne", "Genre fluide"]))
-   questions.append(inquirer.Text("email","Email"))
-   questions.append(inquirer.Password("mot_de_passe", message="Mot de passe"))
+   questions = [
+      inquirer.Text("nom", message="Nouveau nom"),
+      inquirer.Text("prenom", message="Nouveau prénom"),
+      inquirer.List("genre", message="Genre", choices=["Homme", "Femme", "Agender", "Pangender", "Androgyne", "Genre fluide"]),
+      inquirer.Email("email","Email"),
+      inquirer.Password("mot_de_passe", message="Mot de passe")
+   ]
 
    while "Create a user uniquely with his email":
       answers = inquirer.prompt(questions)
-      if answers is None:
+      if answers is None or not len(answers.keys()) :
          return False
       #check if user doesn't aready exist
       #TODO change he email field to actual email table field
@@ -38,8 +41,11 @@ def register_():
       setattr(entity, field, value)
    
    logging.debug("Entite personne %s", entity)
-   
-   adresse = Addresse.create(**get_address())
+   print("\nMerci, maintenant nous voulons encore recuillir votre adresse \n")
+   ad_data = get_address()
+   if not len(ad_data.keys()):
+      return False
+   adresse = Addresse.create(**ad_data)
    
    p = Personne(**answers)
    p.adresse_id = adresse.id

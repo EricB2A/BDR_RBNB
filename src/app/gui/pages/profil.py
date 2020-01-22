@@ -62,7 +62,7 @@ def change_email():
    current_user = g.user
 
    questions = [
-      inquirer.Text("email", message="nouvelle email")
+      inquirer.Email("email", message="nouvelle email")
    ]
    answers = inquirer.prompt(questions)
    if "email" not in answers.keys():
