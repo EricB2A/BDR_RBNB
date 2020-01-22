@@ -196,7 +196,7 @@ INSERT
 INTO fourniture (description, bien_immobilier_id, nom_fourniture)
 VALUES
     ("Kitchenette", 1, "Cuisine"),
-    ("", 1, "Douche"),
+    ("Douche", 1, "Douche"),
     ("Grande cuisine lumineuse", 2, "Cuisine"),
     ("Baignoire", 2, "Baignoire"),
     ("Salon avec TV", 2, "Salon"),
