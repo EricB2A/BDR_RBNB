@@ -12,6 +12,8 @@ import termtables as tt
 import mysql.connector
 from app.utils.path import get_config_path
 import json
+import logging
+from app.gui.gui import Gui
 
 config = {}
 with open(get_config_path("db.json"),"r") as f:
@@ -21,14 +23,14 @@ db = mysql.connector.connect(**config)
 
 def search_():
    def getQueryRes(query):
-
       cu = db.cursor()
       cu.execute(query)
       return cu.fetchall()
-   def insert(query, values):
+   def insert(query):
       cu = db.cursor()
-      cu.execute(query, values)
+      cu.execute(query)
       db.commit()
+      logging.debug(cu.statement)
       return cu.rowcount is 1
 
    def showMultipleChoice(choices):
@@ -231,16 +233,23 @@ def search_():
       bienIdx = inquirer.prompt([inquirer.Text('bienIdx',
                   message="Sélectionnez un bien (ou q pour quitter) ", validate=lambda idx: isNumberOrQ(idx, len(goodsRes))
                )])
+      bienIdx = bienIdx["bienIdx"]
+      
       # afficher un bien ou quitter
-      if bienIdx.get('bienIdx') is "Q":
+      if bienIdx is "Q":
          return False
+      print("IDX:")
+      pprint(bienIdx)
+      idx = int(bienIdx)
 
-      # TODO afficher toutes les infos AJOUTER WHERE PAR RAPPORT AU BIEN
-      fournitures = getQueryRes("SELECT * FROM fourniture WHERE bien_immobilier_id = {}".format(goodsRes[bienIdx][0]))
-      bienIdx = int(bienIdx.get('bienIdx')) - 1
+      bienIdx = idx - 1
+      
+      fournitures = getQueryRes("SELECT * FROM fourniture WHERE bien_immobilier_id = {}".format(goodsRes[bienIdx - 1][0]))
+
+
       print("Info appartement ----------------")
-      print("Capacite personne : {}".format(goodsRes[bienIdx][2]))
-      print("Taille (m²) : {}".format(goodsRes[bienIdx][1]))
+      print("Capacite personne : {}".format(goodsRes[bienIdx][1]))
+      print("Taille (m²) : {}".format(goodsRes[bienIdx][2]))
       print("Type bien: {}".format(goodsRes[bienIdx][5]))
       print("Description: {}".format(goodsRes[bienIdx][3]))
       print("Tarif: {}".format(goodsRes[bienIdx][13]))
@@ -262,32 +271,12 @@ def search_():
          # TODO afficher soit: nouvelle date ou retour search
          g = Gui()
          print(bienIdx)
-         goodIdx = bienIdx - 1 
-         return insert("INSERT INTO location(date_arrivee, duree, estConfirme, locataire_id, bien_immobilier_id) VALUES(%s, %s, %s, %s, %s)",   (date, duree ,"NULL", g.user.id, goodsRes[goodIdx][0]))
+         goodIdx = bienIdx - 1  
+         print( "ID bien: {} ".format(goodsRes[goodIdx][0]))
+         query = "INSERT INTO location(date_arrivee, duree, estConfirme, locataire_id, bien_immobilier_id) VALUES('{}',{}, NULL,{},{})".format(date, duree, g.user.id, goodsRes[goodIdx][0])
+         logging.debug(query)
+         return insert(query)
 
-   # index en fonction de la position de la vue 
-   # 0 => bien_id
-   # 1 => taille
-   # 2 => capacite
-   # 3 => description
-   # 4 => pays
-   # 5 => type_bien
-   # 6 => proprio_nom
-   # 7 => commune
-   # 8 => etat
-   # 9 => rue
-   # 10 => complement_rue
-   # 11 => numero
-   # 12 => npa
-   # 13 => tarif journalier 
-   # 14 => charges 
-
-
-   # POUR LINSTANT ON AFFICHE PAS LES FOURNITURE CAR TROP DE PLACE
-   #fournitureRes = getQueryRes("SELECT nom_fourniture FROM fourniture WHERE bien_immobilier_id = {}".format(good[0]))
-   # fournitures = ""
-   # for fourniture in fournitureRes:
-   #    fournitures += fourniture[0]+" "
 
 
 # Search page
