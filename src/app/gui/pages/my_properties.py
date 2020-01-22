@@ -127,7 +127,6 @@ def my_properties_():
       "Mettre à jour un bien": "update",
       "Supprimer un bien": "delete",
       "Retour":"return"
-
    }
    actions = [
       inquirer.List("action", message="Que voulez vous faire?", choices=["Créer un nouveau bien", "Mettre à jour un bien", "Supprimer un bien", "Retour"])

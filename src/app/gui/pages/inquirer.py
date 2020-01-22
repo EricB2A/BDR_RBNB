@@ -41,6 +41,12 @@ def Checkbox(name, message = None, choices=[], validate=None, filter_=None, defa
       'filter' : filter_, 
       'validate' : validate, 
    }
-
+def Comfirm(name, message = None, default = True):
+   return {
+      'type': 'confirm',
+      'message': message if message is not None else name,
+      'name': name,
+      'default': default,
+    }
 def prompt(questions):
    return prompt_(questions)
