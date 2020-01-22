@@ -266,12 +266,12 @@ def search_():
             startDate, duration = askDate(False)
          
          g = Gui()
-         goodIdx = bienIdx - 1  
+         
 
-         isAlreadyRented = getQueryRes("SELECT bien_est_occupe({},'{}',{})".format(goodsRes[bienIdx][0], startDate, duration))
+         isAlreadyRented = getQueryRes("SELECT bien_est_occupe({},'{}',{})".format(goodsRes[idx][0], startDate, duration))
          
          print("resultat fonction sql {}".format(isAlreadyRented[0][0]))
-         query = "INSERT INTO location(date_arrivee, duree, estConfirme, locataire_id, bien_immobilier_id) VALUES('{}',{}, NULL,{},{})".format(startDate, duration, g.user.id, goodsRes[goodIdx][0])
+         query = "INSERT INTO location(date_arrivee, duree, estConfirme, locataire_id, bien_immobilier_id) VALUES('{}',{}, NULL,{},{})".format(startDate, duration, g.user.id, goodsRes[idx][0])
          logging.debug(query)
 
          if not isAlreadyRented[0][0] and insert(query):
