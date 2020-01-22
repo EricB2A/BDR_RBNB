@@ -1,14 +1,12 @@
 use airbnb;
 
 -- Vue pour la lecture des messages
--- Faut-il rajouter les messages dont on est le destinataire ?
 DROP VIEW IF EXISTS personnal_message;
 CREATE VIEW personnal_message AS
 SELECT personne.id, message.contenu
 FROM personne
 INNER JOIN message
-    ON message.author_id = personne.id
-;
+    ON message.author_id = personne.id;
 
 -- Vue des locations d'un utilisateur
 DROP VIEW IF EXISTS location_personne;
@@ -19,7 +17,7 @@ INNER JOIN location
     ON location.locataire_id = personne.id
 WHERE location.estConfirme <> FALSE;
 
--- Vue affiche le type de bien d'un bien immobilier, son adresse (au complet) aisni 
+-- Vue affiche le type de bien d'un bien immobilier, son adresse (au complet) ainsi
 -- que le propriétaire.
 DROP VIEW IF EXISTS search_biens;
 CREATE VIEW `search_biens` AS
@@ -33,18 +31,32 @@ INNER JOIN pays p ON c.pays_nom = p.nom
 INNER JOIN type_bien tb ON bi.type_bien_nom = tb.nom
 INNER JOIN personne proprio ON bi.proprietaire_id = proprio.id;
 
--- Vue des biens en attente d'un propriétaire
+-- Vue des biens en attente d'un propriétaire.
 DROP VIEW IF EXISTS location_prioprietaire;
 CREATE VIEW location_prioprietaire AS
 SELECT p.id as proprietaire_id, search_biens.*
 FROM search_biens
 INNER JOIN personne p ON proprietaire = p.id;
 
--- Vue des messages reçus
--- DROP VIEW IF EXISTS message_recus;
--- CREATE VIEW message_recus AS
--- SELECT p.prenom 'autheur', m.contenu as 'message', l.id as 'location'
--- FROM personne p
--- INNER JOIN location l ON l.locataire_id = p.id
--- INNER JOIN message m ON m.location_id = l.id
--- ;
+-- Vue des messages liés à une location.
+DROP VIEW IF EXISTS message_recus;
+CREATE VIEW message_recus AS
+SELECT p.prenom 'autheur', m.contenu as 'message', l.id as 'location'
+FROM personne p
+INNER JOIN location l ON l.locataire_id = p.id
+INNER JOIN message m ON m.location_id = l.id;
+
+-- Vue d'un bien, de ses fournitures et du type.
+DROP VIEW IF EXISTS fournitures_bien;
+CREATE VIEW fournitures_bien AS
+SELECT bi.id, bi.taille, bi.capacite, bi.tarif_journalier, bi.charges, bi.description, bi.type_bien_nom, f.nom_fourniture
+FROM bien_immobilier bi
+INNER JOIN fourniture f ON f.bien_immobilier_id = bi.id;
+
+-- Vue affichant les fourniture d'un bien, son type ainsi que ses reviews.
+DROP VIEW IF EXISTS revues_bien;
+CREATE VIEW revues_bien AS
+SELECT fournitures_bien.*, r.note, r.commentaire
+FROM fournitures_bien
+INNER JOIN location l ON fournitures_bien.id = l.bien_immobilier_id
+INNER JOIN review r ON r.location_id = l.id;
