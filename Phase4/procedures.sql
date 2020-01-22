@@ -20,14 +20,14 @@ CREATE PROCEDURE valide_location_chevauchant(
     IN loc_id int(11)
 )
 BEGIN
-			UPDATE location AS t1
-INNER JOIN location as t2
-ON t1.bien_immobilier_id = t2.bien_immobilier_id
-SET t1.estConfirme = IF(t1.id = 11, TRUE, FALSE)
-WHERE t1.estConfirme IS NULL
-AND t2.id = 11
- AND ( dates_superposees(t1.date_arrivee, t2.date_arrivee, t1.duree, t2.duree) IS TRUE
-  );
+    UPDATE location AS t1
+    INNER JOIN location as t2
+    ON t1.bien_immobilier_id = t2.bien_immobilier_id
+    SET t1.estConfirme = IF(t1.id = 11, TRUE, FALSE)
+    WHERE t1.estConfirme IS NULL
+    AND t2.id = 11
+    AND ( dates_superposees(t1.date_arrivee, t2.date_arrivee, t1.duree, t2.duree) IS TRUE
+    );
 END //
 
 DELIMITER ;

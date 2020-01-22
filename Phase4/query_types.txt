@@ -34,3 +34,5 @@ SELECT * FROM location_personne INNER JOIN search_biens ON bien_immobilier_id = 
 SELECT * FROM location_personne INNER JOIN search_biens ON bien_immobilier_id = search_biens.bien_id WHERE location_personne.date_arrivee > NOW() AND location_personne.estConfirme IS NULL AND personne_id = {}
 
 UPDATE bien_immobilier SET adresse_id = {} WHERE id = {}
+
+SELECT * FROM search_biens INNER JOIN fourniture ON bien_id = bien_immobilier_id WHERE (((nom_fourniture = 'Baignoire' OR nom_fourniture = 'Douche') AND (type_bien = 'Appartement' OR type_bien = 'Chambre' OR type_bien = 'Maison')) AND (pays='Suisse')) AND (bien_id NOT IN (SELECT DISTINCT bien_immobilier_id FROM location WHERE (('2020-05-20' BETWEEN date_arrivee AND DATE_ADD(date_arrivee, INTERVAL duree DAY )) OR (date_arrivee BETWEEN '2020-05-20' AND '2020-05-30') OR (DATE_ADD(date_arrivee, INTERVAL duree DAY) BETWEEN '2020-05-20' AND '2020-05-30')) AND estConfirme = 1) )
