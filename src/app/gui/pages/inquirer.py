@@ -8,6 +8,14 @@ def Text(name, message = None, default = "", validate = None):
       'default' : default,
       'validate' : validate,
    }
+def Password(name, message = None, default = "", validate = None):
+   return {
+      'type': 'password',
+      'name': name,
+      'message': message if message is not None else name,
+      'default' : default,
+      'validate' : validate,
+   }
 def List(name, message = None, choices = [], default = "", filter_ = None):
    return {
       'type': 'list',
