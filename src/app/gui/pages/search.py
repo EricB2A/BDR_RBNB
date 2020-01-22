@@ -23,6 +23,11 @@ def search_():
       cu = db.cursor()
       cu.execute(query)
       return cu.fetchall()
+   def insert(query, values):
+      cu = db.cursor()
+      cu.execute(query, values)
+      db.commit()
+      return cu.rowcount is 1
 
    def showMultipleChoice(choices):
       for x in choices.get('interests'):
@@ -71,7 +76,6 @@ def search_():
          return False
    # use to check date
    def isValidDate(date):
-
       try:         
          datetime.strptime(date,'%d/%m/%Y')
          return True
@@ -83,9 +87,32 @@ def search_():
       if date:
          return isValidDate(date)
       else:
-         return True       
-         
-   
+         return True
+   def askDate():
+      startDate = ""
+      duration = -1
+      while "check date is empty or valid":
+         dateCriteria = inquirer.prompt([
+            inquirer.Text('startDate', message="Entrez une date de début", validate=lambda _, x: isValidDateOrNone(x))
+         ])
+         startDateStr = dateCriteria.get('startDate')
+         # Si l'utilisateur fournit une date on lui force à mettre une durée
+         if startDateStr:
+            startDate = datetime.strptime(startDateStr,'%d/%m/%Y')
+            durationCriteria = inquirer.prompt([
+               inquirer.Text('duration', message="Entrez une durée (nombre de jours)",
+               validate=lambda _, x: isNumber(x)),
+            ])
+            duration = int(durationCriteria.get('duration'))
+            break
+         else:
+            break    
+         print("la date doit être au format jour/mois/annee => eg: 12/12/2020")
+      
+      return startDate, duration
+   def isNumberOrQ(number, maxIdx):
+      return (isNumber(number) and int(number) > 0 and int(number) <= maxIdx) or str(number) is "Q"
+
    def createSearchQuery(fournitreWhere, typeBienWhere, positionWhere, unavailableBienQuery):
     
       searchQuery = "SELECT * FROM search_biens"
@@ -163,40 +190,78 @@ def search_():
 
    startDate = ""
    duration = ""
-   
-   while "check date is empty or valid":
-      dateCriteria = inquirer.prompt([
-         inquirer.Text('startDate', message="Entrez une date de début", validate=lambda _, x: isValidDateOrNone(x))
-      ])
-      startDateStr = dateCriteria.get('startDate')
-      # Si l'utilisateur fournit une date on lui force à mettre une durée
-      if startDateStr:
-         startDate = datetime.strptime(startDateStr,'%d/%m/%Y')
-         durationCriteria = inquirer.prompt([
-            inquirer.Text('duration', message="Entrez une durée (nombre de jours)",
-            validate=lambda _, x: isNumber(x)),
-         ])
-         duration = int(durationCriteria.get('duration'))
-         break
-      else:
-         break    
-      print("la date doit être au format jour/mois/annee => eg: 12/12/2020")
-   
+   startDate, duration = askDate()
+
    unavailableBienQuery = ""
-   if startDateStr:
+   if startDate:
       endDate = startDate + timedelta(days=duration)
       sqlStartDate = startDate.strftime('%Y-%m-%d') # date, pas datetime
       sqlEndDate = endDate.strftime('%Y-%m-%d')
 
       unavailableBienQuery = "bien_id NOT IN (SELECT DISTINCT bien_immobilier_id FROM location WHERE (date_arrivee BETWEEN {} AND {}) AND (DATE_ADD(date_arrivee, INTERVAL duree DAY) BETWEEN {} AND {})) ".format(sqlStartDate, sqlEndDate, sqlStartDate, sqlEndDate)
 
-   # on construit la requête avec toutes les champs de la recherche
-   # TODO tester que les interval de temps sont justes 
    searchQuery = createSearchQuery(fournitureWhere, typeBienWhere, positionWhere, unavailableBienQuery)
    print(searchQuery)
 
    goodsRes = getQueryRes(searchQuery)
-   goodsRows = []
+   if(len(goodsRes) == 0):
+      print("Aucun resultat")
+      input("Tappez une touche pour continuer")
+      return False
+
+   
+   headerBiens = ["id ", "Cap. person.", "Taille (m²)", "type_bien", "Description", "Rue","Commune", "Etat"]
+   
+   # affichage des résultat
+   while True:
+      biens = []
+      Page.clear()
+      idx = 1
+      for good in goodsRes:
+         biens.append([idx, good[1], good[2], good[5], good[3], good[9], good[7], good[8]])
+         idx = idx + 1
+      
+      print( tt.to_string(
+            data=biens,
+            header=headerBiens,
+            style=tt.styles.ascii_thin_double,
+         ))
+      bienIdx = inquirer.prompt([inquirer.Text('bienIdx',
+                  message="Sélectionnez un bien (ou q pour quitter) ", validate=lambda _,idx: isNumberOrQ(idx, len(goodsRes))
+               )])
+      # afficher un bien ou quitter
+      if bienIdx.get('bienIdx') is "Q":
+         return False
+
+      # TODO afficher toutes les infos
+      fournitures = getQueryRes("SELECT * FROM fourniture")
+      bienIdx = int(bienIdx.get('bienIdx')) - 1
+      print("Info appartement ----------------")
+      print("Capacite personne : {}".format(goodsRes[bienIdx][2]))
+      print("Taille (m²) : {}".format(goodsRes[bienIdx][1]))
+      print("Type bien: {}".format(goodsRes[bienIdx][5]))
+      print("Description: {}".format(goodsRes[bienIdx][3]))
+      print("Tarif: {}".format(goodsRes[bienIdx][13]))
+      print("Charge: {}".format(goodsRes[bienIdx][14]))
+      print("Adresse: {} {} {} {} {}".format(goodsRes[bienIdx][9], goodsRes[bienIdx][11], goodsRes[bienIdx][12], goodsRes[bienIdx][7], goodsRes[bienIdx][4]))
+      if fournitures:
+         print("Fournitures Disponbiles: ")
+         for fourniture in fournitures:
+            print(" -" + fourniture[4])
+
+      # réserver ? 
+      reserver = inquirer.prompt([inquirer.Text("ouiNon", message="Souhaitez-vous réserver ce bien ?", 
+                                 validate=lambda _,x: x is "O" or x is "N")])
+      
+      # si O on réserve autrement on réaffiche les résultats
+      if reserver.get('ouiNon') is "O":
+         date, duree = askDate()
+         # TODO AJOUTER PROCEDURE check dispo (attendre procedure Alois)
+         # TODO afficher soit: nouvelle date ou retour search
+         g = Gui()
+         print(bienIdx)
+         goodIdx = bienIdx - 1 
+         return insert("INSERT INTO location(date_arrivee, duree, estConfirme, locataire_id, bien_immobilier_id) VALUES(%s, %s, %s, %s, %s)",   (date, duree ,"NULL", g.user.id, goodsRes[goodIdx][0]))
 
    # index en fonction de la position de la vue 
    # 0 => bien_id
@@ -210,11 +275,10 @@ def search_():
    # 8 => etat
    # 9 => rue
    # 10 => complement_rue
-   # 11 => ville
-   # 12 => numero
-   # 13 => npa
-   # 14 => tarif journalier 
-   # 15 => charges 
+   # 11 => numero
+   # 12 => npa
+   # 13 => tarif journalier 
+   # 14 => charges 
 
 
    # POUR LINSTANT ON AFFICHE PAS LES FOURNITURE CAR TROP DE PLACE
@@ -222,11 +286,6 @@ def search_():
    # fournitures = ""
    # for fourniture in fournitureRes:
    #    fournitures += fourniture[0]+" "
-
-   # TODO ATTENTION SI VILLE / CITY disparait, faire - 1 au index à partir de 11
-
-   input("ATTEND SEARCH")
-   return True
 
 
 # Search page

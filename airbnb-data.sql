@@ -178,18 +178,18 @@ VALUES
 INSERT
 INTO location (date_arrivee, duree, estConfirme, locataire_id, bien_immobilier_id) 
 VALUES 
-    ("2020.02.13", 7, false, 8, 11), 
-    ("2020.07.12", 7, true, 18, 4), 
-    ("2020.03.15", 4, true, 20, 2), 
-    ("2020.02.09", 2, true, 4, 7), 
-    ("2020.07.24", 7, true, 8, 1), 
-    ("2020.08.24", 15, false, 22, 7), 
-    ("2020.08.02", 15, true, 12, 8), 
-    ("2020.04.15", 8, false, 4, 9), 
-    ("2020.04.15", 4, true, 16, 10), 
-    ("2020.05.24", 13, false, 19, 11),
-    ("2020.03.20", 7, null, 19, 11),
-    ("2020.03.19", 13, null, 10, 11)
+    ("2020-02-13", 7, false, 8, 11), 
+    ("2020-07-12", 7, true, 18, 4), 
+    ("2020-03-15", 4, true, 20, 2), 
+    ("2020-02-09", 2, true, 4, 7), 
+    ("2020-07-24", 7, true, 8, 1), 
+    ("2020-08-24", 15, false, 22, 7), 
+    ("2020-08-02", 15, true, 12, 8), 
+    ("2020-04-15", 8, false, 4, 9), 
+    ("2020-04-15", 4, true, 16, 10), 
+    ("2020-05-24", 13, false, 19, 11),
+    ("2020-03-20", 7, null, 19, 11),
+    ("2020-03-19", 13, null, 10, 11)
 ;
 
 INSERT
@@ -202,8 +202,31 @@ VALUES
     ("Salon avec TV", 2, "Salon"),
     ("Grande cuisine lumineuse", 3, "Cuisine"),
     ("Douche", 3, "Douche"),
-    ("Salon avec grande TV", 2, "Salon")
+    ("Salon avec grande TV", 3, "Salon"),
+    ("Salon/Cuisine", 4, "Salon"),
+    ("Salon/Cuisine", 4, "Cuisine"),
+    ("Douche commune", 4, "Douche"),
+    ("Douche Italienne", 5, "Douche"),
+    ("Salon spacieux", 5, "Salon"),
+    ("Cuisine aménagée", 5, "Cuisine"),
+    ("Cuisine aménagée", 6, "Cuisine"),
+    ("Salon avec baie vitrée", 6, "Salon"),
+    ("Baignoire neuve", 6, "Baignoire"),
+    ("Salon", 7, "Salon"),
+    ("Douche neuve", 7, "Douche"),
+    ("Cuisine au gaz", 7, "Cuisine"),
+    ("Cuisine spacieuse avec induction", 8, "Cuisine"),
+    ("2 grand salons", 8, "Salon"),
+    ("Baignoire Louis XVI", 8, "Baignoire"),
+    ("Douche italienne", 8, "Douche"),
+    ("Terrasse extérieure", 8, "Terrasse"),
+    ("Cuisine au gaz, pas de micro-onde", 10, "Cuisine"),
+    ("Douche", 10, "Douche"),
+    ("Salon avec poutre apparentes", 10, "Salon"),
+    ("Salon/Cuisine", 11, "Salon"),
+    ("Douche commune", 11, "Douche")
 ;
+
 INSERT 
 INTO message(contenu, location_id, author_id)
 VALUES
