@@ -54,7 +54,10 @@ class Page(object):
 
       questions = list(self.items.keys())
       logging.debug("ITEMS %s", self.items)
-      questions.append("Exit") # self.quit 
+      if self.parent is not None:
+         questions.append("Retour") # self.quit 
+      else:
+         questions.append("Exit") # self.quit 
 
       inqQuestion = [ {
         'type': 'list',
@@ -64,11 +67,11 @@ class Page(object):
       }]
       questionResponse=PyInquirer.prompt(inqQuestion)
 
-      if questionResponse is None:
+      if not "choicePage" in questionResponse.keys():
          self.quit()
          return
          
-      if questionResponse['choicePage'] == "Exit":
+      if questionResponse['choicePage'] in ("Exit", "Retour"):
          self.quit()
          return
       
