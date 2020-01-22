@@ -3,7 +3,7 @@ from db.relationships.one_to_many import OneToMany
 
 class TypeBien(Entity):
    _table_name = "type_bien"
-   _primary_key = "nom"
+   _key_name = "nom"
    
    fields = {
       "nom":"string"

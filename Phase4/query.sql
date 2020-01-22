@@ -1,3 +1,4 @@
+use airbnb;
     
 -- utiliser pour connaitre les fourniture de l'appartement
 select nom_fourniture from search_biens sb

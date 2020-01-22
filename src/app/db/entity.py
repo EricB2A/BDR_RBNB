@@ -192,11 +192,13 @@ class Entity(object):
          logging.debug("QUERY: %s", query)
          cursor.execute(query)
          result = cursor.fetchall()
+         db.commit()
          logging.debug("FOUND: %s", result)
          return map(lambda x: self.build(**x), result)
       elif id is None: # no id no problem
          cursor.execute(query)
          result = cursor.fetchall()
+         db.commit()
          logging.debug("FOUND: %s", result)
          return list(map(lambda x: self.build(**x), result))
       else: # find single instance with the specified id
@@ -204,6 +206,7 @@ class Entity(object):
          logging.debug("QUERY: %s", query)
          cursor.execute(query)
          result = cursor.fetchone()
+         db.commit()
          logging.debug("FOUND: %s", result)
          if cursor.rowcount <= 0:
             return None

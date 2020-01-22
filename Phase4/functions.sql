@@ -1,3 +1,5 @@
+use airbnb;
+
 -- Fonction qui vérifie si deux périodes se chevauchent
 DROP FUNCTION IF EXISTS dates_surperposees;
 DELIMITER //
@@ -13,4 +15,23 @@ DECLARE reponse boolean
     END IF;
 RETURN reponse;
 END //
+
+-- Vérifie si une location a déjà lieu dans l'intervalle donnée.
+DROP FUNCTION IF EXISTS valide_location;
+CREATE FUNCTION valide_location(
+    loc_id INT,
+    starting_date DATE,
+    duration INT
+)
+RETURNS BOOL
+READS SQL DATA
+BEGIN
+    RETURN EXISTS(
+        SELECT l.id FROM location as l
+        WHERE l.id <> loc_id
+        AND (l.date_arrivee BETWEEN starting_date AND DATE_ADD(starting_date, INTERVAL duration DAY))
+    );
+END //
+
 DELIMITER ;
+

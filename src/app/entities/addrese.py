@@ -7,6 +7,6 @@ class Addresse(Entity):
       "complement_rue": "string",
       "numero": "string",
       "npa": "string",
-      "ville": "string",
+      
       "commune_nom": "string",
    }

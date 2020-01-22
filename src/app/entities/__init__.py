@@ -12,7 +12,7 @@ from .type_bien import TypeBien
 entity_registrar = {
    "personne" : Personne,
    "location" : Location,
-   "addresse" : Addresse,
+   "adresse" : Addresse,
    "bien_immobilier": BienImmobilier,
    "commune": Commune,
    "fourniture": Fourniture,

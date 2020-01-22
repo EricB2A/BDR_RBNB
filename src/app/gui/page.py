@@ -1,23 +1,28 @@
-import inquirer
+import PyInquirer
 import sys
 import os
 import logging
+from pprint import pprint
+
+
 class Page(object):
    parent = None
    name = ""
    title = None
-   items = []
+   items = {}
    main_callable = None
    next = None
-
-   def __init__(self, name, parent = None, next = None, should_exit = False, title = None):
+   before_show = None
+   def __init__(self, name, parent = None, next = None, should_exit = False, title = None, before_show = None):
       self.name = name
       self.parent = parent
       self.should_exit = should_exit
-      self.items = []
+      self.items = {}
+
       self.next = next
       self.main_callable = None
       self.title = title
+      self.before_show = before_show
 
    def set_main(self, fnt):
       """
@@ -26,7 +31,9 @@ class Page(object):
       the next or previous page
       """
       self.main_callable = fnt
-      
+   def set_before_show(self, n):
+      self.before_show = n
+
    def get_title(self):
       if self.title is not None:
          return self.title
@@ -34,6 +41,8 @@ class Page(object):
 
    def show(self):
       logging.debug("Page %s [next=%s, parent=%s]", self.name,self.next, self.parent)
+      if self.before_show is not None:
+         self.before_show()
       self.clear()
       if self.main_callable is not None:
          res = self.main_callable()
@@ -48,14 +57,30 @@ class Page(object):
          else:
             self.quit()
 
-      questions = []
-      for item in self.items:
-         questions.append(item)
+      questions = list(self.items.keys())
       logging.debug("ITEMS %s", self.items)
-      questions.append(('Exit', self.quit))
+      if self.parent is not None:
+         questions.append("Retour") # self.quit 
+      else:
+         questions.append("Exit") # self.quit 
+
+      inqQuestion = [ {
+        'type': 'list',
+        'name': 'choicePage',
+        'message': self.get_title(),
+        'choices': questions,
+      }]
+      questionResponse=PyInquirer.prompt(inqQuestion)
+
+      if not "choicePage" in questionResponse.keys():
+         self.quit()
+         return
+         
+      if questionResponse['choicePage'] in ("Exit", "Retour"):
+         self.quit()
+         return
       
-      res = inquirer.prompt([inquirer.List("choice", message=self.get_title(), choices=questions )])
-      choice = res["choice"]
+      choice = self.items[questionResponse['choicePage']]
 
       if isinstance(choice, Page):
          self.clear()
@@ -80,9 +105,9 @@ class Page(object):
    def append_item(self, item, name = None):
       if isinstance(item, Page):
          item.set_parent(self)
-         self.items.append( (item.name, item) )
+         self.items[item.get_title()] = item
       else:
-         self.items.append( (name, item) )
+         self.items[ name ] =  item
       
       return self
    def quit(self):
@@ -101,7 +126,9 @@ class Page(object):
    @staticmethod
    def clear():
       os.system('cls' if os.name == 'nt' else 'clear')
-
+   @staticmethod
+   def wait_input():
+      input("Appuyez sur entrée pour continuer...")
 if __name__ == "__main__":
 
    from pages.home_page import home
