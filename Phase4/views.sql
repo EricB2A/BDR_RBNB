@@ -11,7 +11,7 @@ INNER JOIN message
 -- Vue des locations d'un utilisateur
 DROP VIEW IF EXISTS location_personne;
 CREATE VIEW location_personne AS
-SELECT bien_immobilier_id, date_arrivee, duree, estConfirme, personne.id  'personne_id'
+SELECT bien_immobilier_id, date_arrivee,duree, DATE_ADD(date_arrivee, INTERVAL duree DAY) 'date_depart',estConfirme, personne.id  'personne_id'
 FROM personne
 INNER JOIN location
     ON location.locataire_id = personne.id

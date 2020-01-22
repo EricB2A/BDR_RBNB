@@ -29,11 +29,11 @@ def displayRental():
     query = "SELECT * FROM location_personne INNER JOIN search_biens ON bien_immobilier_id = search_biens.bien_id WHERE location_personne.date_arrivee > NOW() AND location_personne.estConfirme IS NULL AND personne_id = {}".format(g.user.id) 
     logging.debug(query)
     locations = getQueryRes(query)
-    headerBiens = ["Cap. person.", "Taille (m²)", "type_bien", "Description", "Rue","Commune", "Etat"]
+    headerBiens = ["Cap. person.", "Taille (m²)", "type_bien", "Description", "Rue","Commune", "Etat", "date_arrivee", "date_depart"]
     
     biens = []
     for location in locations:
-        biens.append([location["capacite"], location["taille"], location["type_bien"], location["description"], location["rue"], location["commune"], location["etat"]])
+        biens.append([location["capacite"], location["taille"], location["type_bien"], location["description"], location["rue"], location["commune"], location["etat"],location["date_arrivee"],location["date_depart"] ])
 
     if biens:
         print( tt.to_string(
