@@ -1,17 +1,20 @@
-from app.gui.page import Page
-from app.gui.gui import Gui
+
 import termtables as tt
 import logging
-
-import app.gui.pages.inquirer as inquirer
+import json
+import mysql.connector
 
 from app.entities.bien_immobilier import BienImmobilier
 from app.entities.type_bien import TypeBien
 from app.entities.addrese import Addresse
-from app.entities.commune import Commune
-import json
-import mysql.connector
+
+from app.gui.page import Page
+from app.gui.gui import Gui
+
 from app.utils.path import get_config_path
+import app.gui.pages.inquirer as inquirer
+
+from .adresse import get_address
 
 config = {}
 with open(get_config_path("db.json"),"r") as f:
@@ -19,22 +22,6 @@ with open(get_config_path("db.json"),"r") as f:
 
 db = mysql.connector.connect(**config)
 
-def _get_address():
-   communes = Commune.find()
-   commune_mapping = { x.nom + "(" + x.pays_nom + ")":x.nom for x in communes }
-   fields = [
-      inquirer.Text("rue", message="Rue"),
-      inquirer.Text("complement_rue", message="Complément"),
-      inquirer.Text("numero", message="Numéro"),
-      inquirer.Text("npa", message="Npa"),
-      #inquirer.Text("ville", message="Ville"),
-      inquirer.List("commune_nom", message="Commune", choices=list(commune_mapping.keys()))
-   ]
-   answers = inquirer.prompt(fields)
-   if answers is None:
-      return None
-   answers["commune_nom"] = commune_mapping[answers["commune_nom"]]
-   return answers
 
 def building_modal(building = None):
    existed = False
@@ -75,7 +62,7 @@ def building_modal(building = None):
 
    if not building.exists:
       try:
-         address_data = _get_address()
+         address_data = get_address()
          address = Addresse.create(**address_data)
          building.adresse_id = address.id
          building.proprietaire_id = current_user.id
@@ -89,7 +76,7 @@ def building_modal(building = None):
    else:
       try:
          if answers["address_change"]:
-            address_data = _get_address()
+            address_data = get_address()
             address = Addresse.create(**address_data)
             building.adresse_id = address.id
          
@@ -155,6 +142,7 @@ def my_properties_():
       b = building_modal()
       if b:
          print("Nouvelle imeuble créé!")
+         Page.wait_input()
       return True
 
    building_id = input("\n Numéro du bien: ")
@@ -163,14 +151,14 @@ def my_properties_():
    logging.debug(building_by_id)
    if building_id not in building_by_id.keys():
       print("Hey you're trying to update something that isn't yours fuck off")
-      input(">")
+      Page.wait_input()
       return False
 
    current_building = building_by_id[building_id]
    if action == "update":
       
       building_modal(current_building)
-      input("Appuyez sur entrée pour continuer....")
+      Page.wait_input()
    elif action == "delete":
       #get building
       query = "DELETE from bien_immobilier WHERE id = {}".format(building_id)
@@ -187,7 +175,7 @@ def my_properties_():
             return False
       except:
          db.rollback()
-      input("Appuyez sur entrée pour continuer....")
+      Page.wait_input()
    
 my_properties = Page("my_properties", title="Gérer mes biens")
 my_properties.set_main(my_properties_)
@@ -197,8 +185,3 @@ pending_locations = Page("pending_locations", title="Locations en attente")
 manage_properties = Page("manage_properties", title="Gérer mes propriétés")
 manage_properties.append_item(my_properties)
 manage_properties.append_item(pending_locations)
-
-#En mode Locataire
-#Afficher les locations passé
-#Afficher les locations futurs
-#Manager mes biens --> seulement proprio

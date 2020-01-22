@@ -3,7 +3,8 @@ import logging
 from app.entities.personne import Personne
 from app.gui.page import Page
 from app.gui.gui import Gui
-
+from app.entities.addrese import Addresse
+from .adresse import get_address
 from .mode_select import mode_select_page
 
 def register_():
@@ -36,8 +37,14 @@ def register_():
    
    for field, value in answers.items():
       setattr(entity, field, value)
+   
    logging.debug("Entite personne %s", entity)
+   
+   adresse = Addresse.create(**get_address())
+   
    p = Personne.create(**answers)
+   p.adresse_id = adresse.id
+
    logging.debug("personne %s", p)
    g = Gui()
    g.user = p

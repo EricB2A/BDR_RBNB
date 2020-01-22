@@ -68,13 +68,11 @@ class Page(object):
          self.quit()
          return
          
-      if choice == "Exit":
+      if questionResponse['choicePage'] == "Exit":
          self.quit()
          return
       
       choice = self.items[questionResponse['choicePage']]
-
-      
 
       if isinstance(choice, Page):
          self.clear()
@@ -99,7 +97,7 @@ class Page(object):
    def append_item(self, item, name = None):
       if isinstance(item, Page):
          item.set_parent(self)
-         self.items[item.name] = item
+         self.items[item.get_title()] = item
       else:
          self.items[ name ] =  item
       
@@ -120,7 +118,9 @@ class Page(object):
    @staticmethod
    def clear():
       os.system('cls' if os.name == 'nt' else 'clear')
-
+   @staticmethod
+   def wait_input():
+      input("Appuyez sur entrée pour continuer...")
 if __name__ == "__main__":
 
    from pages.home_page import home
