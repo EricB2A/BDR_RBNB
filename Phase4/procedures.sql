@@ -13,20 +13,20 @@ END //
 
 DELIMITER ;
 -- Procedure pour valider une location et invalider les locations chevauchantes
-DROP PROCEDURE IF EXISTS valide_location_chevauchant;
-DELIMITER //
-CREATE PROCEDURE valide_location_chevauchant(
-    IN loc_id int(11)
-)
-BEGIN
-			UPDATE location t1
-			INNER JOIN location as t2
-            ON t1.bien_immobilier_id = t2.bien_immobilier_id
-            SET t1.estConfirme = IF(t1.id = loc_id, TRUE, FALSE)
-			WHERE t1.estConfirme IS NULL
-            AND t2.id = loc_id
-			AND ( dates_superposees(t1.date_arrivee, t2.date_arrivee, t1.duree, t2.duree) IS TRUE
-         );
-END //
-
-DELIMITER ;
+-- DROP PROCEDURE IF EXISTS valide_location_chevauchant;
+-- DELIMITER //
+-- CREATE PROCEDURE valide_location_chevauchant(
+--     IN loc_id int(11)
+-- )
+-- BEGIN
+-- 			UPDATE location t1
+-- 			INNER JOIN location as t2
+--          ON t1.bien_immobilier_id = t2.bien_immobilier_id
+--          SET t1.estConfirme = IF(t1.id = loc_id, TRUE, FALSE)
+-- 			WHERE t1.estConfirme IS NULL
+--             AND t2.id = loc_id
+-- 			AND ( dates_superposees(t1.date_arrivee, t2.date_arrivee, t1.duree, t2.duree) IS TRUE
+--          );
+-- END //
+--
+-- DELIMITER ;

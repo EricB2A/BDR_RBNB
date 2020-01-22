@@ -21,10 +21,10 @@ END //
 DELIMITER ;
 
 -- Vérifie si une location a déjà lieu dans l'intervalle donnée.
-DROP FUNCTION IF EXISTS valide_location;
+DROP FUNCTION IF EXISTS bien_est_occupe;
 DELIMITER //
-CREATE FUNCTION valide_location(
-    loc_id INT,
+CREATE FUNCTION bien_est_occupe(
+    bien_id INT,
     starting_date DATE,
     duration INT
 )
@@ -33,8 +33,9 @@ READS SQL DATA
 BEGIN
     RETURN EXISTS(
         SELECT l.id FROM location as l
-        WHERE l.id <> loc_id
+        WHERE l.bien_immobilier_id = bien_id
         AND dates_superposees(starting_date, l.date_arrivee, duration, l.duree) IS FALSE 
+        AND l.estConfirme = 1)
     );
 END //
 
