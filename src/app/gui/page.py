@@ -55,6 +55,8 @@ class Page(object):
       questions.append(('Exit', self.quit))
       
       res = inquirer.prompt([inquirer.List("choice", message=self.get_title(), choices=questions )])
+      if res is None:
+         self.quit()
       choice = res["choice"]
 
       if isinstance(choice, Page):
