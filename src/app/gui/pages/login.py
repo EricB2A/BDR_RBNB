@@ -4,16 +4,23 @@ from app.db.entity_manager import EntityManager
 from .mode_select import mode_select_page
 from app.entities.personne import Personne
 import logging
+import app.gui.pages.inquirer as inquirer
 
 def login_():
    em = EntityManager()
    db = em.get_db()
    userId = -1
+   questions = [
+      inquirer.RequiredText("email", "Addresse email"),
+      inquirer.Password("password", "Mot de passe")
+   ]
    while "Verfication de l'utilisateur":
       try:
-         username  = input("Email: ")
-         password = input("Password: ")
-
+         answers = inquirer.prompt(questions)
+         if len(answers.keys()) != 2:
+            return False
+         username = answers["email"]
+         password = answers["password"]
          #cuGetTypeBien = db.cursor(dictionary=True)
          users = Personne.where("email= '{}' AND mot_de_passe='{}' LIMIT 0,1".format(username, password))
 

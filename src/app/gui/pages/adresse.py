@@ -6,10 +6,10 @@ def get_address():
    communes = Commune.find()
    commune_mapping = { x.nom + "(" + x.pays_nom + ")":x.nom for x in communes }
    fields = [
-      inquirer.Text("rue", message="Rue"),
-      inquirer.Text("numero", message="Numéro"),
-      inquirer.Text("complement_rue", message="Complément"),
-      inquirer.Text("npa", message="Npa"),
+      inquirer.RequiredText("rue", message="Rue"),
+      inquirer.RequiredText("numero", message="Numéro"),
+      inquirer.RequiredText("complement_rue", message="Complément"),
+      inquirer.Numeric("npa", message="Npa"),
       #inquirer.Text("ville", message="Ville"),
       inquirer.List("commune_nom", message="Commune", choices=list(commune_mapping.keys()))
    ]
