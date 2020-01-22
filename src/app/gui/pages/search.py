@@ -22,10 +22,12 @@ with open(get_config_path("db.json"),"r") as f:
 db = mysql.connector.connect(**config)
 
 def search_():
+   # permet d'envoyer une requete et renvoie le résultat
    def getQueryRes(query):
       cu = db.cursor()
       cu.execute(query)
       return cu.fetchall()
+   # permet d'insérer les résultat au moyen d'une requete 
    def insert(query):
       cu = db.cursor()
       cu.execute(query)
@@ -33,17 +35,15 @@ def search_():
       logging.debug(cu.statement)
       return cu.rowcount is 1
 
-   def showMultipleChoice(choices):
-      for x in choices.get('interests'):
-         print(" -"+x)
-
-
+   # ajouter une query
    def addAndToQuery(query, fieldName, value):
          if query:
             query += " AND {} = '{}'".format(fieldName, value)
+         else: 
+            query = " {} = '{}'".format(fieldName, value)
          return query
 
-  
+   # permet de créer une requete where avec les fields spécifier
    def createWhere(choices, field, binaryOp="OR"):
       firstLoop = True
       query = ""
@@ -55,6 +55,7 @@ def search_():
 
       return query
 
+   # permet de créer le where de l'adresse / position de bien
    def createWherePosition(answers):
       query = ""
       if answers.get('pays'): 
@@ -63,12 +64,8 @@ def search_():
       if answers.get('commune'):
          query = addAndToQuery(query, "commune", answers.get('commune'))
 
-      if answers.get('city') :
-         query = addAndToQuery(query, "ville", answers.get('city'))
-
       if answers.get('postalCode'):
          query = addAndToQuery(query, "npa", answers.get('postalCode'))
-
       return query
 
    # https://stackoverflow.com/questions/354038/how-do-i-check-if-a-string-is-a-number-float
@@ -92,7 +89,8 @@ def search_():
          return isValidDate(date)
       else:
          return True
-   def askDate():
+   # demande la date
+   def askDate(canBeNull=True):
       startDate = ""
       duration = -1
       while "check date is empty or valid":
@@ -105,12 +103,13 @@ def search_():
             startDate = datetime.strptime(startDateStr,'%d/%m/%Y')
             durationCriteria = inquirer.prompt([
                inquirer.Text('duration', message="Entrez une durée (nombre de jours)",
-               validate=lambda x: isNumber(x)),
+               validate=lambda x: isNumber(x) and int(x) > 0),
             ])
             duration = int(durationCriteria.get('duration'))
             break
          else:
-            break    
+            if canBeNull:
+               break    
          print("la date doit être au format jour/mois/annee => eg: 12/12/2020")
       
       return startDate, duration
@@ -124,17 +123,11 @@ def search_():
       if fournitreWhere:
          searchQuery += " INNER JOIN fourniture ON bien_id = bien_immobilier_id"
 
-      # Si il y a des critères à la recherche on ajoute le mot clé WHERE à la requête
-      if fournitreWhere or positionWhere or typeBienWhere or unavailableBienQuery:
-         print("***")
-         print(fournitureChoices)
-         print(positionWhere)
-         print(typeBienWhere)
-         print(unavailableBienQuery)
-         searchQuery += " WHERE "
-         print("###")
 
-      
+      # Si il y a des critères à la recherche on ajoute le mot clé WHERE à la requête
+      if fournitreWhere or positionWhere or typeBienWhere or unavailableBienQuery:        
+         searchQuery += " WHERE "
+
       whereQuery = ""
 
       # On ajoute les différents critères à la requête
@@ -184,13 +177,16 @@ def search_():
    positionCriteria = inquirer.prompt([
       inquirer.Text('pays', message="Entrez un pays"),
       inquirer.Text('commune', message="Entrez une commune"),
-      inquirer.Text('city', message="Entrez une ville"),
       inquirer.Text('postalCode', message="Entrez une NPA")
    ])
    
    positionWhere = createWherePosition(positionCriteria)
+
    typeBienWhere = createWhere(bienChoices, "type_bien")
-   fournitureWhere = createWhere(fournitureChoices, "nom_fourniture")
+   fournitureWhere = createWhere(fournitureChoices, "nom_fourniture", "OR")
+   fournitureQuery = ""
+   if fournitureWhere:
+      fournitureQuery = "bien_id IN (SELECT bien_immobilier_id FROM fourniture WHERE {} GROUP BY bien_immobilier_id HAVING COUNT(*) = {})".format(fournitureWhere, len(fournitureChoices.get('interests')))
 
    startDate = ""
    duration = ""
@@ -201,12 +197,13 @@ def search_():
       endDate = startDate + timedelta(days=duration)
       sqlStartDate = startDate.strftime('%Y-%m-%d') # date, pas datetime
       sqlEndDate = endDate.strftime('%Y-%m-%d')
+      print()
+      unavailableBienQuery = "bien_id NOT IN (SELECT DISTINCT bien_immobilier_id FROM location WHERE (date_arrivee BETWEEN '{}' AND '{}') OR (DATE_ADD(date_arrivee, INTERVAL duree DAY) BETWEEN '{}' AND '{}') AND estConfirme = 1) ".format(sqlStartDate, sqlEndDate, sqlStartDate, sqlEndDate)
 
-      unavailableBienQuery = "bien_id NOT IN (SELECT DISTINCT bien_immobilier_id FROM location WHERE (date_arrivee BETWEEN {} AND {}) AND (DATE_ADD(date_arrivee, INTERVAL duree DAY) BETWEEN {} AND {})) ".format(sqlStartDate, sqlEndDate, sqlStartDate, sqlEndDate)
-
-   searchQuery = createSearchQuery(fournitureWhere, typeBienWhere, positionWhere, unavailableBienQuery)
-   print(searchQuery)
-
+   searchQuery = createSearchQuery(fournitureQuery, typeBienWhere, positionWhere, unavailableBienQuery)
+   print(searchQuery)   
+   input("att")
+  
    goodsRes = getQueryRes(searchQuery)
    if(len(goodsRes) == 0):
       print("Aucun resultat")
@@ -214,7 +211,7 @@ def search_():
       return False
 
    
-   headerBiens = ["id ", "Cap. person.", "Taille (m²)", "type_bien", "Description", "Rue","Commune", "Etat"]
+   headerBiens = ["Indice ", "ID", "Cap. person.", "Taille (m²)", "type_bien", "Description", "Rue","Commune", "Etat"]
    
    # affichage des résultat
    while True:
@@ -222,7 +219,7 @@ def search_():
       Page.clear()
       idx = 1
       for good in goodsRes:
-         biens.append([idx, good[1], good[2], good[5], good[3], good[9], good[7], good[8]])
+         biens.append([idx, good[0], good[2], good[1], good[5], good[3], good[9], good[7], good[8]])
          idx = idx + 1
       
       print( tt.to_string(
@@ -238,44 +235,54 @@ def search_():
       # afficher un bien ou quitter
       if bienIdx is "Q":
          return False
-      print("IDX:")
-      pprint(bienIdx)
+
       idx = int(bienIdx)
 
-      bienIdx = idx - 1
+      idx = idx - 1
       
-      fournitures = getQueryRes("SELECT * FROM fourniture WHERE bien_immobilier_id = {}".format(goodsRes[bienIdx - 1][0]))
-
+      fournitures = getQueryRes("SELECT * FROM fourniture WHERE bien_immobilier_id = {}".format(goodsRes[idx][0]))
 
       print("Info appartement ----------------")
-      print("Capacite personne : {}".format(goodsRes[bienIdx][1]))
-      print("Taille (m²) : {}".format(goodsRes[bienIdx][2]))
-      print("Type bien: {}".format(goodsRes[bienIdx][5]))
-      print("Description: {}".format(goodsRes[bienIdx][3]))
-      print("Tarif: {}".format(goodsRes[bienIdx][13]))
-      print("Charge: {}".format(goodsRes[bienIdx][14]))
-      print("Adresse: {} {} {} {} {}".format(goodsRes[bienIdx][9], goodsRes[bienIdx][11], goodsRes[bienIdx][12], goodsRes[bienIdx][7], goodsRes[bienIdx][4]))
+      print("id du bien : {}".format(goodsRes[idx][0]))
+      print("Capacite personne : {}".format(goodsRes[idx][2]))
+      print("Taille (m²) : {}".format(goodsRes[idx][1]))
+      print("Type bien: {}".format(goodsRes[idx][5]))
+      print("Description: {}".format(goodsRes[idx][3]))
+      print("Tarif: {}".format(goodsRes[idx][13]))
+      print("Charge: {}".format(goodsRes[idx][14]))
+      print("Adresse: {} {} {} {} {}".format(goodsRes[idx][9], goodsRes[idx][11], goodsRes[idx][12], goodsRes[idx][7], goodsRes[idx][4]))
       if fournitures:
          print("Fournitures Disponbiles: ")
          for fourniture in fournitures:
             print(" -" + fourniture[3])
 
       # réserver ? 
-      reserver = inquirer.prompt([inquirer.Text("ouiNon", message="Souhaitez-vous réserver ce bien ?", 
+      reserver = inquirer.prompt([inquirer.Text("ouiNon", message="Souhaitez-vous réserver ce bien (O/N) ?", 
                                  validate=lambda x: x is "O" or x is "N")])
       
       # si O on réserve autrement on réaffiche les résultats
       if reserver.get('ouiNon') is "O":
-         date, duree = askDate()
-         # TODO AJOUTER PROCEDURE check dispo (attendre procedure Alois)
-         # TODO afficher soit: nouvelle date ou retour search
+         if startDate == "": 
+            startDate, duration = askDate(False)
+         
          g = Gui()
-         print(bienIdx)
          goodIdx = bienIdx - 1  
-         print( "ID bien: {} ".format(goodsRes[goodIdx][0]))
-         query = "INSERT INTO location(date_arrivee, duree, estConfirme, locataire_id, bien_immobilier_id) VALUES('{}',{}, NULL,{},{})".format(date, duree, g.user.id, goodsRes[goodIdx][0])
+
+         isAlreadyRented = getQueryRes("SELECT bien_est_occupe({},'{}',{})".format(goodsRes[bienIdx][0], startDate, duration))
+         
+         print("resultat fonction sql {}".format(isAlreadyRented[0][0]))
+         query = "INSERT INTO location(date_arrivee, duree, estConfirme, locataire_id, bien_immobilier_id) VALUES('{}',{}, NULL,{},{})".format(startDate, duration, g.user.id, goodsRes[goodIdx][0])
          logging.debug(query)
-         return insert(query)
+
+         if not isAlreadyRented[0][0] and insert(query):
+            print("Votre réservation à bien été faite...") 
+            input("Appuyez sur une touche")
+            return True
+         else:
+            print("Bien indisponible")
+            input("Appuyez sur une touche")
+            return False
+         
 
 
 

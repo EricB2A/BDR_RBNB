@@ -15,7 +15,7 @@ SELECT bien_immobilier_id, date_arrivee, duree, estConfirme, personne.id  'perso
 FROM personne
 INNER JOIN location
     ON location.locataire_id = personne.id
-WHERE location.estConfirme <> FALSE;
+WHERE location.estConfirme IS NULL OR location.estConfirme = TRUE;
 
 -- Vue affiche le type de bien d'un bien immobilier, son adresse (au complet) ainsi
 -- que le propriétaire.
