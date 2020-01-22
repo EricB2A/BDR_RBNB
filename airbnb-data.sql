@@ -1,6 +1,6 @@
 use airbnb;
 
-INSERT 
+INSERT
 INTO pays (nom)
 VALUES
     ("Suisse"),
@@ -12,16 +12,16 @@ VALUES
     ("Espagne"),
     ("Portugal"),
     ("Autriche"),
-    ("Grèce"),
+    ("Grece"),
     ("Pologne"),
-    ("Suède"),
-    ("Norvège"),
+    ("Suede"),
+    ("Norvege"),
     ("Finlande"),
     ("Russie"),
     ("USA"),
     ("Mexique"),
-    ("Brésil"),
-    ("Pérou"),
+    ("Bresil"),
+    ("Perou"),
     ("Colombie"),
     ("Marco"),
     ("Tunisie"),
@@ -74,9 +74,9 @@ INTO adresse (commune_nom, rue, complement_rue, numero, npa)
 VALUES
     ("Yverdon-les-Bains", "Route de Cheseaux", NULL, "1", "CH-1401"),
     ("Yverdon-les-Bains", "Rue de la Plaine", NULL, "68", "CH-1400"),
-    ("Yverdon-les-Bains", "Rue des Prés-du-Lac", NULL, "21B", "CH-1400"),
-    ("Lausanne", "Chemin de la Lisière", NULL, "8", "CH-1018"),
-    ("Lausanne", "Chemin de la Lisière", NULL, "25A", "CH-1018"),
+    ("Yverdon-les-Bains", "Rue des Pres-du-Lac", NULL, "21B", "CH-1400"),
+    ("Lausanne", "Chemin de la Lisiere", NULL, "8", "CH-1018"),
+    ("Lausanne", "Chemin de la Lisiere", NULL, "25A", "CH-1018"),
     ("Lausanne", "Chemin du Reposoir", NULL, "1", "CH-1007"),
     ("Montreux", "Rue de l'Ancien Stand", NUll, "28", "CH-1820"),
     ("Nyon", "Rue de la Combe", NULL, "12", "CH-1260"),
@@ -102,7 +102,7 @@ VALUES
 
 INSERT
 INTO personne (nom, prenom, email, mot_de_passe, adresse_id, genre)
-VALUES 
+VALUES
     ("Baxter","Joel","Phyllis@Ut.org","at", 2, "Homme"),
     ("Hampton","Peter","Phillip@ut.us","tempor", 7, "Homme"),
     ("Kirk","Tanek","Keane@lectus.edu","mus", 6, "Homme"),
@@ -133,7 +133,7 @@ VALUES
     ("Terry","Oprah","Remedios@lorem.gov","nulla", 1, "Femme")
 ;
 
-INSERT 
+INSERT
 INTO type_bien (nom)
 VALUES
     ("Studio"),
@@ -153,13 +153,13 @@ INTO bien_immobilier (adresse_id, type_bien_nom, proprietaire_id,
 VALUES
     ((SELECT adresse_id from personne WHERE id = 1), "Studio", 1, 25, 2, "Petit studio sympathique, cuisine, salle de bain.", 43.8, 60.0),
     ((SELECT adresse_id from personne WHERE id = 2), "Appartement", 2, 60, 3, "Appartement lumineux", 72.7, 70.0),
-    ((SELECT adresse_id from personne WHERE id = 3), "Appartement", 3, 72, 5, "Appartement tout neuf, bien placé", 120.0, 160.0),
+    ((SELECT adresse_id from personne WHERE id = 3), "Appartement", 3, 72, 5, "Appartement tout neuf, bien place", 120.0, 160.0),
     ((SELECT adresse_id from personne WHERE id = 5), "Studio", 5, 30, 1, "Grand studio", 34.9, 45.0),
     ((SELECT adresse_id from personne WHERE id = 7), "Appartement", 7, 74, 3, "Appartement en centre-ville", 67.0, 80.0),
     ((SELECT adresse_id from personne WHERE id = 12), "Appartement", 12, 80, 5, "Grand appartement pour fêtes", 103.33, 60.0),
     ((SELECT adresse_id from personne WHERE id = 15), "Appartement", 15, 54, 3, "Appartement typique", 35.00, 35.0),
-    ((SELECT adresse_id from personne WHERE id = 21), "Villa", 21, 240, 8, "Très grande villa pour vacances de rêves", 350.00, 600.0),
-    ((SELECT adresse_id from personne WHERE id = 23), "Chambre", 23, 12, 1, "Chambre de bonne à l'étage", 23.8, 0.0),
+    ((SELECT adresse_id from personne WHERE id = 21), "Villa", 21, 240, 8, "Tres grande villa pour vacances de rêves", 350.00, 600.0),
+    ((SELECT adresse_id from personne WHERE id = 23), "Chambre", 23, 12, 1, "Chambre de bonne a l'etage", 23.8, 0.0),
     ((SELECT adresse_id from personne WHERE id = 17), "Appartement", 17, 81, 6, "Grand appartement, un peu viellot", 145.5, 120.0),
     ((SELECT adresse_id from personne WHERE id = 13), "Chambre", 13, 10, 1, "Petite chambre", 27.8, 60.0)
 ;
@@ -176,17 +176,17 @@ VALUES
     ("Buanderie")
 ;
 INSERT
-INTO location (date_arrivee, duree, estConfirme, locataire_id, bien_immobilier_id) 
-VALUES 
-    ("2020-02-13", 7, false, 8, 11), 
-    ("2020-07-12", 7, true, 18, 4), 
-    ("2020-03-15", 4, true, 20, 2), 
-    ("2020-02-09", 2, true, 4, 7), 
-    ("2020-07-24", 7, true, 8, 1), 
-    ("2020-08-24", 15, false, 22, 7), 
-    ("2020-08-02", 15, true, 12, 8), 
-    ("2020-04-15", 8, false, 4, 9), 
-    ("2020-04-15", 4, true, 16, 10), 
+INTO location (date_arrivee, duree, estConfirme, locataire_id, bien_immobilier_id)
+VALUES
+    ("2020-02-13", 7, false, 8, 11),
+    ("2020-07-12", 7, true, 18, 4),
+    ("2020-03-15", 4, true, 20, 2),
+    ("2020-02-09", 2, true, 4, 7),
+    ("2020-07-24", 7, true, 8, 1),
+    ("2020-08-24", 15, false, 22, 7),
+    ("2020-08-02", 15, true, 12, 8),
+    ("2020-04-15", 8, false, 4, 9),
+    ("2020-04-15", 4, true, 16, 10),
     ("2020-05-24", 13, false, 19, 11),
     ("2020-03-20", 7, null, 19, 11),
     ("2020-03-19", 13, null, 10, 11)
@@ -208,9 +208,9 @@ VALUES
     ("Douche commune", 4, "Douche"),
     ("Douche Italienne", 5, "Douche"),
     ("Salon spacieux", 5, "Salon"),
-    ("Cuisine aménagée", 5, "Cuisine"),
-    ("Cuisine aménagée", 6, "Cuisine"),
-    ("Salon avec baie vitrée", 6, "Salon"),
+    ("Cuisine amenagee", 5, "Cuisine"),
+    ("Cuisine amenagee", 6, "Cuisine"),
+    ("Salon avec baie vitree", 6, "Salon"),
     ("Baignoire neuve", 6, "Baignoire"),
     ("Salon", 7, "Salon"),
     ("Douche neuve", 7, "Douche"),
@@ -219,7 +219,7 @@ VALUES
     ("2 grand salons", 8, "Salon"),
     ("Baignoire Louis XVI", 8, "Baignoire"),
     ("Douche italienne", 8, "Douche"),
-    ("Terrasse extérieure", 8, "Terrasse"),
+    ("Terrasse exterieure", 8, "Terrasse"),
     ("Cuisine au gaz, pas de micro-onde", 10, "Cuisine"),
     ("Douche", 10, "Douche"),
     ("Salon avec poutre apparentes", 10, "Salon"),
@@ -227,7 +227,7 @@ VALUES
     ("Douche commune", 11, "Douche")
 ;
 
-INSERT 
+INSERT
 INTO message(contenu, location_id, author_id)
 VALUES
     ("Superbe location !", 1, 1),
@@ -236,15 +236,15 @@ VALUES
     ("A quelle heure arrivez-vous ?", 1, 3),
     ("Jolies plantes !", 2, 4),
     ("Bsartek la vue", 3, 4),
-    ("Rue animée.", 4, 1),
-    ("Comment accéder à l'appartement ?", 6, 1),
-    ("Où dois-je laisser les clefs ?", 2, 2),
-    ("Merci d'avoir laissé de quoi manger.", 2, 3),
-    ("Très jolie voisine.", 2, 2),
+    ("Rue animee.", 4, 1),
+    ("Comment acceder a l'appartement ?", 6, 1),
+    ("Ou dois-je laisser les clefs ?", 2, 2),
+    ("Merci d'avoir laisse de quoi manger.", 2, 3),
+    ("Tres jolie voisine.", 2, 2),
     ("Est-il possible de louer votre chat ?", 2, 1)
 ;
 
-INSERT 
+INSERT
 INTO review(note, commentaire, location_id)
 VALUES
     (1, "Excellent", 1),
