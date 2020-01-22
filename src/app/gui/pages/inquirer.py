@@ -1,13 +1,47 @@
-from PyInquirer import style_from_dict, Token, prompt as prompt_, Separator
+from PyInquirer import style_from_dict, Token, prompt as prompt_, Separator, Validator, ValidationError
+import regex
 
-def Text(name, message = None, default = "", validate = None):
+class EmailValidator(Validator):
+    def validate(self, document):
+        ok = regex.match(r".+\@.+\..+", document.text)
+        if not ok:
+            raise ValidationError(
+                message='Please enter a valid email',
+                cursor_position=len(document.text))  # Move cursor to end
+
+class NumericValidate(Validator):
+   def validate(self, document):
+      try:
+         val = float(document.text)
+         return True
+      except ValueError:
+         raise ValidationError(
+                message='Please enter a valid numeric value',
+                cursor_position=len(document.text))
+   
+
+
+def Text(name, message = None, default = "", validate = None, filter_ = None):
    return {
       'type': 'input',
       'name': name,
       'message': message if message is not None else name,
       'default' : default,
       'validate' : validate,
+      'filter': filter_
    }
+def Email(name, message = None, default = ""):
+   return Text(name, message, default, EmailValidator )
+
+def numeric_val(val):
+   try:
+      return float(val)
+   except:
+      return None
+
+def Numeric(name, message = None, default = ""):
+   return Text(name, message, default, validate=NumericValidate, filter_ = numeric_val)
+
 def Password(name, message = None, default = "", validate = None):
    return {
       'type': 'password',
@@ -16,6 +50,7 @@ def Password(name, message = None, default = "", validate = None):
       'default' : default,
       'validate' : validate,
    }
+
 def List(name, message = None, choices = [], default = "", filter_ = None):
    return {
       'type': 'list',
@@ -24,6 +59,7 @@ def List(name, message = None, choices = [], default = "", filter_ = None):
       'choices': choices,
       'filter': filter_
    }
+
 def Checkbox(name, message = None, choices=[], validate=None, filter_=None, default=[], qmark = "-"):
    choices_mapping = []
    for i in choices:
