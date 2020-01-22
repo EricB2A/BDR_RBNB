@@ -16,16 +16,22 @@ def List(name, message = None, choices = [], default = "", filter_ = None):
       'choices': choices,
       'filter': filter_
    }
-def Checkbox(name, message = None, choices=[], validate_=None, filter_=None, default=[], qmark = "-"):
+def Checkbox(name, message = None, choices=[], validate=None, filter_=None, default=[], qmark = "-"):
+   choices_mapping = []
+   for i in choices:
+      choices_mapping.append({
+            'name': i,
+            'checked': i in default
+      })
+         
    return {
       'type': 'checkbox',
       'name': name,
       'qmark': qmark,
       'message' : message if message is not None else name, 
-      'choices' : choices,
+      'choices' : choices_mapping,
       'filter' : filter_, 
-      'validate' : validate_, 
-      'default' : default_
+      'validate' : validate, 
    }
 
 def prompt(questions):

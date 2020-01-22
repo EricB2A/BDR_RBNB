@@ -2,7 +2,9 @@ from app.gui.page import Page
 from app.db.entity_manager import EntityManager
 
 from entities.type_bien import TypeBien
-import inquirer
+
+import app.gui.pages.inquirer as inquirer
+
 from pprint import pprint
 from datetime import datetime
 from datetime import timedelta
@@ -93,7 +95,7 @@ def search_():
       duration = -1
       while "check date is empty or valid":
          dateCriteria = inquirer.prompt([
-            inquirer.Text('startDate', message="Entrez une date de début", validate=lambda _, x: isValidDateOrNone(x))
+            inquirer.Text('startDate', message="Entrez une date de début", validate=lambda x: isValidDateOrNone(x))
          ])
          startDateStr = dateCriteria.get('startDate')
          # Si l'utilisateur fournit une date on lui force à mettre une durée
@@ -101,7 +103,7 @@ def search_():
             startDate = datetime.strptime(startDateStr,'%d/%m/%Y')
             durationCriteria = inquirer.prompt([
                inquirer.Text('duration', message="Entrez une durée (nombre de jours)",
-               validate=lambda _, x: isNumber(x)),
+               validate=lambda x: isNumber(x)),
             ])
             duration = int(durationCriteria.get('duration'))
             break
@@ -227,14 +229,14 @@ def search_():
             style=tt.styles.ascii_thin_double,
          ))
       bienIdx = inquirer.prompt([inquirer.Text('bienIdx',
-                  message="Sélectionnez un bien (ou q pour quitter) ", validate=lambda _,idx: isNumberOrQ(idx, len(goodsRes))
+                  message="Sélectionnez un bien (ou q pour quitter) ", validate=lambda idx: isNumberOrQ(idx, len(goodsRes))
                )])
       # afficher un bien ou quitter
       if bienIdx.get('bienIdx') is "Q":
          return False
 
-      # TODO afficher toutes les infos
-      fournitures = getQueryRes("SELECT * FROM fourniture")
+      # TODO afficher toutes les infos AJOUTER WHERE PAR RAPPORT AU BIEN
+      fournitures = getQueryRes("SELECT * FROM fourniture WHERE bien_immobilier_id = {}".format(goodsRes[bienIdx][0]))
       bienIdx = int(bienIdx.get('bienIdx')) - 1
       print("Info appartement ----------------")
       print("Capacite personne : {}".format(goodsRes[bienIdx][2]))
@@ -247,11 +249,11 @@ def search_():
       if fournitures:
          print("Fournitures Disponbiles: ")
          for fourniture in fournitures:
-            print(" -" + fourniture[4])
+            print(" -" + fourniture[3])
 
       # réserver ? 
       reserver = inquirer.prompt([inquirer.Text("ouiNon", message="Souhaitez-vous réserver ce bien ?", 
-                                 validate=lambda _,x: x is "O" or x is "N")])
+                                 validate=lambda x: x is "O" or x is "N")])
       
       # si O on réserve autrement on réaffiche les résultats
       if reserver.get('ouiNon') is "O":

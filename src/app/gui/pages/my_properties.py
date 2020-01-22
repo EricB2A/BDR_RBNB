@@ -2,7 +2,9 @@ from app.gui.page import Page
 from app.gui.gui import Gui
 import termtables as tt
 import logging
+
 import app.gui.pages.inquirer as inquirer
+
 from app.entities.bien_immobilier import BienImmobilier
 from app.entities.type_bien import TypeBien
 from app.entities.addrese import Addresse
