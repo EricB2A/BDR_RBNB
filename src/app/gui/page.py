@@ -12,8 +12,8 @@ class Page(object):
    items = {}
    main_callable = None
    next = None
-
-   def __init__(self, name, parent = None, next = None, should_exit = False, title = None):
+   before_show = None
+   def __init__(self, name, parent = None, next = None, should_exit = False, title = None, before_show = None):
       self.name = name
       self.parent = parent
       self.should_exit = should_exit
@@ -22,6 +22,7 @@ class Page(object):
       self.next = next
       self.main_callable = None
       self.title = title
+      self.before_show = before_show
 
    def set_main(self, fnt):
       """
@@ -30,7 +31,9 @@ class Page(object):
       the next or previous page
       """
       self.main_callable = fnt
-      
+   def set_before_show(self, n):
+      self.before_show = n
+
    def get_title(self):
       if self.title is not None:
          return self.title
@@ -38,6 +41,8 @@ class Page(object):
 
    def show(self):
       logging.debug("Page %s [next=%s, parent=%s]", self.name,self.next, self.parent)
+      if self.before_show is not None:
+         self.before_show()
       self.clear()
       if self.main_callable is not None:
          res = self.main_callable()
