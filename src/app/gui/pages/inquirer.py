@@ -41,7 +41,7 @@ def Checkbox(name, message = None, choices=[], validate=None, filter_=None, defa
       'filter' : filter_, 
       'validate' : validate, 
    }
-def Comfirm(name, message = None, default = True):
+def Confirm(name, message = None, default = True):
    return {
       'type': 'confirm',
       'message': message if message is not None else name,
