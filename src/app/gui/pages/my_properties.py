@@ -2,7 +2,7 @@ from app.gui.page import Page
 from app.gui.gui import Gui
 import termtables as tt
 import logging
-import inquirer
+import app.gui.pages.inquirer as inquirer
 from app.entities.bien_immobilier import BienImmobilier
 from app.entities.type_bien import TypeBien
 from app.entities.addrese import Addresse
@@ -17,19 +17,22 @@ with open(get_config_path("db.json"),"r") as f:
 
 db = mysql.connector.connect(**config)
 
-#TODO redo with queries
-def _get_address(building = None):
+def _get_address():
    communes = Commune.find()
-
+   commune_mapping = { x.nom + "(" + x.pays_nom + ")":x.nom for x in communes }
    fields = [
       inquirer.Text("rue", message="Rue"),
       inquirer.Text("complement_rue", message="Complément"),
       inquirer.Text("numero", message="Numéro"),
       inquirer.Text("npa", message="Npa"),
       #inquirer.Text("ville", message="Ville"),
-      inquirer.List("commune_nom", message="Commune", choices=list(map(lambda x: (x.nom + "(" + x.pays_nom + ")",x.nom),communes)))
+      inquirer.List("commune_nom", message="Commune", choices=list(commune_mapping.keys()))
    ]
-   return fields
+   answers = inquirer.prompt(fields)
+   if answers is None:
+      return None
+   answers["commune_nom"] = commune_mapping[answers["commune_nom"]]
+   return answers
 
 def building_modal(building = None):
    existed = False
@@ -41,10 +44,11 @@ def building_modal(building = None):
    type_bien = TypeBien.find()
 
    type_bien_default = building.type_bien_nom if building.exists else None
+
    fields = [
+      inquirer.Text("description", message = "Description"),
       inquirer.Text("charges", message="Charges"),
       inquirer.Text("tarif_journalier", message="Tarifs journaliers"),
-      inquirer.Text("description", message = "Description"),
       inquirer.Text("capacite", message="Capacité"),
       inquirer.Text("taille", message="Taille"),
       inquirer.List("type_bien_nom", message="Type de bien", choices=list(map(lambda x: x.nom,type_bien)), default=type_bien_default)
@@ -69,7 +73,7 @@ def building_modal(building = None):
 
    if not building.exists:
       try:
-         address_data = inquirer.prompt(_get_address(building))
+         address_data = _get_address()
          address = Addresse.create(**address_data)
          building.adresse_id = address.id
          building.proprietaire_id = current_user.id
@@ -79,12 +83,11 @@ def building_modal(building = None):
       except Exception as e:
          logging.debug(e)
          print("Impossible d'insérer le bien immobilier")
-         input(">")
          return False
    else:
       try:
          if answers["address_change"]:
-            address_data = inquirer.prompt(_get_address(building))
+            address_data = _get_address()
             address = Addresse.create(**address_data)
             building.adresse_id = address.id
          
@@ -95,7 +98,6 @@ def building_modal(building = None):
       except Exception as e:
          logging.debug(e)
          print("Impossible d'insérer le bien immobilier")
-         input(">")
          return False
 
 def my_properties_():
@@ -131,15 +133,21 @@ def my_properties_():
    print(string)
    
    #Actions on buildings
+   mapping_actions={
+      "Créer un nouveau bien":"create",
+      "Mettre à jour un bien": "update",
+      "Supprimer un bien": "delete"
+
+   }
    actions = [
-      inquirer.List("action", message="Que voulez vous faire?", choices=[("Créer un nouveau bien","create"), ("Mettre à jour un bien", "update"), ("Supprimer un bien", "delete")])
+      inquirer.List("action", message="Que voulez vous faire?", choices=["Créer un nouveau bien", "Mettre à jour un bien", "Supprimer un bien"])
    ]
    action = inquirer.prompt(actions)
-
+   logging.debug("CHOOSING TO DO %s ON BUILDING", action)
    if action is None:
       return False
    
-   action = action["action"]
+   action = mapping_actions[action["action"]]
 
    if action == "create":
       b = building_modal()
