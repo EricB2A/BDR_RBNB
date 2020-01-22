@@ -2,10 +2,10 @@
 from app.cli.cli_manager import Cli
 from config import Config
 from db import EntityManager
-from utils.path import get_config_path
+from utils.path import get_config_path, get_log_path
 import logging
 from entities import entity_registrar
-logging.basicConfig(format='%(asctime)s %(levelname)-8s %(message)s', level=logging.DEBUG)
+logging.basicConfig(format='%(asctime)s %(levelname)-8s %(message)s', level=logging.DEBUG, filename=get_log_path("app.log"))
 
 booted = False
 
