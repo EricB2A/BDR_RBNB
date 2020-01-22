@@ -1,4 +1,4 @@
-import inquirer
+import app.gui.pages.inquirer as inquirer
 import logging
 from app.entities.personne import Personne
 from app.gui.page import Page
