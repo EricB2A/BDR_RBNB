@@ -1,6 +1,36 @@
 use airbnb;
-    
--- utiliser pour connaitre les fourniture de l'appartement
-select nom_fourniture from search_biens sb
-	INNER JOIN fourniture f ON sb.id = f.bien_immobilier_id
 
+-- utiliser pour connaitre les fourniture de l'appartement
+select nom_fourniture from search_biens sb INNER JOIN fourniture f ON sb.id = f.bien_immobilier_id;
+
+DELETE FROM adresse WHERE id = {};
+    -- RECUPÉRATION DES LOCATIONS EN ATTENTE
+SELECT *, location.id location_id, location.date_arrivee, DATE_ADD(location.date_arrivee, INTERVAL location.duree DAY) date_depart FROM location_prioprietaire INNER JOIN location on location.bien_immobilier_id = location_prioprietaire.bien_id WHERE proprietaire_id = {} AND estConfirme IS NULL AND location.date_arrivee > NOW()
+-- recupération des locations actuelle
+SELECT *, location.id location_id, location.date_arrivee, DATE_ADD(location.date_arrivee, INTERVAL location.duree DAY) date_depart FROM location_prioprietaire INNER JOIN location on location.bien_immobilier_id = location_prioprietaire.bien_id WHERE proprietaire_id = {} AND estConfirme = 1 AND DATE(NOW()) BETWEEN location.date_arrivee AND DATE_ADD(location.date_arrivee, INTERVAL location.duree DAY)
+-- récupération des locations dans le passé
+SELECT *, location.id location_id, location.date_arrivee, DATE_ADD(location.date_arrivee, INTERVAL location.duree DAY) as date_depart FROM location_prioprietaire INNER JOIN location on location.bien_immobilier_id = location_prioprietaire.bien_id WHERE proprietaire_id = {} AND estConfirme = 1 AND location.date_arrivee < DATE(NOW())
+
+UPDATE location SET `estConfirme` = NULL WHERE bien_immobilier_id = {}
+UPDATE location SET `estConfirme` = 0 WHERE bien_immobilier_id = {}
+UPDATE location SET `estConfirme` = 1 WHERE bien_immobilier_id = {}
+
+-- list de mes biens
+SELECT * FROM search_biens WHERE proprietaire = {}
+
+-- selection d'un bien immobilier
+SELECT `id`, `taille`, `capacite`, `type_bien_nom`, `description`, `proprietaire_id`, `charges`, `adresse_id`, `tarif_journalier` from bien_immobilier WHERE id = {}
+
+-- récupération d'un utilisateur par mdp et email
+SELECT `genre`, `mot_de_passe`, `email`, `id`, `prenom`, `adresse_id`, `nom` from personne WHERE email= '{}' AND mot_de_passe='{}' LIMIT 0,1
+
+-- locations que l'utilisateur a pris et qui sont comfirmé
+SELECT * FROM location_personne INNER JOIN search_biens ON bien_immobilier_id = search_biens.bien_id WHERE location_personne.date_arrivee > NOW() AND location_personne.estConfirme IS TRUE AND personne_id = {}
+
+-- locations que l'utilisateur a pris et qui sont dans le passé
+SELECT * FROM location_personne INNER JOIN search_biens ON bien_immobilier_id = search_biens.bien_id WHERE DATE_ADD(location_personne.date_arrivee, INTERVAL location_personne.duree DAY) < NOW() AND location_personne.estConfirme = TRUE AND personne_id = {}
+
+-- locations que l'utilisateur a pris et qui sont en attente de comfirmation
+SELECT * FROM location_personne INNER JOIN search_biens ON bien_immobilier_id = search_biens.bien_id WHERE location_personne.date_arrivee > NOW() AND location_personne.estConfirme IS NULL AND personne_id = {}
+
+UPDATE bien_immobilier SET adresse_id = {} WHERE id = {}
