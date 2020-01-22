@@ -63,16 +63,18 @@ class Page(object):
         'choices': questions,
       }]
       questionResponse=PyInquirer.prompt(inqQuestion)
-      
+
       if questionResponse is None:
          self.quit()
          return
-
-      choice = self.items[questionResponse['choicePage']]
-
+         
       if choice == "Exit":
          self.quit()
          return
+      
+      choice = self.items[questionResponse['choicePage']]
+
+      
 
       if isinstance(choice, Page):
          self.clear()
