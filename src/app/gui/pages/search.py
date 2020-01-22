@@ -198,12 +198,10 @@ def search_():
       sqlStartDate = startDate.strftime('%Y-%m-%d') # date, pas datetime
       sqlEndDate = endDate.strftime('%Y-%m-%d')
       print()
-      unavailableBienQuery = "bien_id NOT IN (SELECT DISTINCT bien_immobilier_id FROM location WHERE (date_arrivee BETWEEN '{}' AND '{}') OR (DATE_ADD(date_arrivee, INTERVAL duree DAY) BETWEEN '{}' AND '{}') AND estConfirme = 1) ".format(sqlStartDate, sqlEndDate, sqlStartDate, sqlEndDate)
+      unavailableBienQuery = "bien_id NOT IN (SELECT DISTINCT bien_immobilier_id FROM location WHERE (('{}' BETWEEN date_arrivee AND DATE_ADD(date_arrivee, INTERVAL duree DAY )) OR (date_arrivee BETWEEN '{}' AND '{}') OR (DATE_ADD(date_arrivee, INTERVAL duree DAY) BETWEEN '{}' AND '{}')) AND estConfirme = 1) ".format(sqlStartDate, sqlStartDate, sqlEndDate, sqlStartDate, sqlEndDate)
 
    searchQuery = createSearchQuery(fournitureQuery, typeBienWhere, positionWhere, unavailableBienQuery)
-   print(searchQuery)   
-   input("att")
-  
+     
    goodsRes = getQueryRes(searchQuery)
    if(len(goodsRes) == 0):
       print("Aucun resultat")
@@ -248,8 +246,8 @@ def search_():
       print("Taille (m²) : {}".format(goodsRes[idx][1]))
       print("Type bien: {}".format(goodsRes[idx][5]))
       print("Description: {}".format(goodsRes[idx][3]))
-      print("Tarif: {}".format(goodsRes[idx][13]))
-      print("Charge: {}".format(goodsRes[idx][14]))
+      print("Tarif: {}".format(goodsRes[idx][14]))
+      print("Charge: {}".format(goodsRes[idx][15]))
       print("Adresse: {} {} {} {} {}".format(goodsRes[idx][9], goodsRes[idx][11], goodsRes[idx][12], goodsRes[idx][7], goodsRes[idx][4]))
       if fournitures:
          print("Fournitures Disponbiles: ")
@@ -267,14 +265,11 @@ def search_():
          
          g = Gui()
          
-
-         isAlreadyRented = getQueryRes("SELECT bien_est_occupe({},'{}',{})".format(goodsRes[idx][0], startDate, duration))
+         isFreeQuery = getQueryRes("SELECT bien_est_libre({},'{}',{})".format(goodsRes[idx][0], startDate, duration))
          
-         print("resultat fonction sql {}".format(isAlreadyRented[0][0]))
          query = "INSERT INTO location(date_arrivee, duree, estConfirme, locataire_id, bien_immobilier_id) VALUES('{}',{}, NULL,{},{})".format(startDate, duration, g.user.id, goodsRes[idx][0])
-         logging.debug(query)
-
-         if not isAlreadyRented[0][0] and insert(query):
+         
+         if isFreeQuery[0][0] and insert(query):
             print("Votre réservation à bien été faite...") 
             input("Appuyez sur une touche")
             return True
