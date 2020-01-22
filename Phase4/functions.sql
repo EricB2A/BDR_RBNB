@@ -1,6 +1,5 @@
 use airbnb;
 
-DELIMITER //
 -- Fonction qui vérifie si deux périodes se chevauchent
 
 DROP FUNCTION IF EXISTS dates_superposees;
@@ -36,7 +35,7 @@ BEGIN
         SELECT l.id FROM location as l
         WHERE l.bien_immobilier_id = bien_id
         AND dates_superposees(starting_date, l.date_arrivee, duration, l.duree) IS FALSE 
-        AND l.estConfirme = 1)
+        AND l.estConfirme IS TRUE
     );
 END //
 
