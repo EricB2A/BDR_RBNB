@@ -1,5 +1,6 @@
 use airbnb;
 
+DELIMITER //
 -- Fonction qui vérifie si deux périodes se chevauchent
 
 DROP FUNCTION IF EXISTS dates_superposees;
