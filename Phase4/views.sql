@@ -10,7 +10,6 @@ INNER JOIN message
     ON message.author_id = personne.id
 ;
 
-
 -- Vue des locations d'un utilisateur
 DROP VIEW IF EXISTS location_personne;
 CREATE VIEW location_personne AS
@@ -52,5 +51,3 @@ FROM personne p
 INNER JOIN location l ON l.locataire_id = p.id
 INNER JOIN message m ON m.location_id = l.id
 ;
-
-select * from message_recus;

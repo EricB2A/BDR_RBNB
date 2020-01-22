@@ -1,5 +1,7 @@
+use airbnb;
+
 -- Fonction pour inserer une nouvelle location
-DROP PROCEDURE IF exists insert_location;
+DROP FUNCTION IF EXISTS insert_location;
 DELIMITER //
 CREATE FUNCTION insert_location(loc_id int, bien_immo_id int, date_arrivee date, duree int)
 RETURNS boolean
@@ -20,6 +22,23 @@ BEGIN
         RETURN done;
 END //
 
+-- Vérifie si une location a déjà lieu dans l'intervalle donnée.
+DROP FUNCTION IF EXISTS valide_location;
+CREATE FUNCTION valide_location(
+    loc_id INT,
+    starting_date DATE,
+    duration INT
+)
+RETURNS BOOL
+READS SQL DATA
+BEGIN
+    RETURN EXISTS(
+        SELECT l.id FROM location as l
+        WHERE l.id <> loc_id
+        AND (l.date_arrivee BETWEEN starting_date AND DATE_ADD(starting_date, INTERVAL duration DAY))
+    );
+END //
+
 DELIMITER ;
 
-SELECT (insert_location(1, 1, NOW(), 2));
+-- SELECT (insert_location(1, 1, NOW(), 2));
