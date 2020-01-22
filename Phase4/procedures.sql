@@ -1,3 +1,5 @@
+use airbnb;
+
 -- Procedure d'annulation des réservations passées
 DROP PROCEDURE IF EXISTS annule_ancienne_locations;
 DELIMITER //
@@ -31,4 +33,5 @@ BEGIN
         );
     END IF;
 END //
+
 DELIMITER ;

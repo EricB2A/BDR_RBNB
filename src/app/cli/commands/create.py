@@ -6,7 +6,7 @@ from db.relationships.one_to_one import OneToOne
 
 import sys
 import logging
-import inquirer
+import PyInquirer
 
 class Create(Command):
    
@@ -62,11 +62,11 @@ Exmaple usage:
             available_data = list(relationship.find_all())
             available_data = list(map(lambda x: (x.render_excerpt(), x),available_data))
             logging.debug(available_data)
-            questions = [inquirer.Checkbox("relation",
+            questions = [PyInquirer.Checkbox("relation",
                   message="Which {}?".format(name),
                   choices=available_data,
             )]
-            res = inquirer.prompt(questions)
+            res = PyInquirer.prompt(questions)
             logging.debug(res)
             setattr(entity, name, res["relation"])
          elif isinstance(relationship, OneToOne):
@@ -74,11 +74,11 @@ Exmaple usage:
             available_data = list(relationship.find_all())
             available_data = list(map(lambda x: (x.render_excerpt(), x),available_data))
             logging.debug(available_data)
-            questions = [inquirer.List("relation",
+            questions = [PyInquirer.List("relation",
                   message="Which {}?".format(name),
                   choices=available_data,
             )]
-            res = inquirer.prompt(questions)
+            res = PyInquirer.prompt(questions)
             logging.debug(res)
             setattr(entity, name, res["relation"])
 
@@ -89,8 +89,8 @@ Exmaple usage:
    def ask_for_fields(self, entity):
       fields = entity.fields
       fields = { k:v for (k,v) in fields.items() if v is not "relationship" }
-      questions = map(lambda f: inquirer.Text(f, message="{}".format(f)), fields)
-      answers = inquirer.prompt(questions)
+      questions = map(lambda f: PyInquirer.Text(f, message="{}".format(f)), fields)
+      answers = PyInquirer.prompt(questions)
       logging.debug("Creating entity (%s) with values %s", entity, answers)
       for field, value in answers.items():
          setattr(entity, field, value)

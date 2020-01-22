@@ -14,7 +14,6 @@ def register_():
    fields = [
       "nom",
       "prenom",
-      
    ]
    questions = list(map(lambda f: inquirer.Text(f, message="{}".format(f)), fields))
    questions.append(inquirer.List("genre", message="Genre", choices=["Homme", "Femme", "Agender", "Pangender", "Androgyne", "Genre fluide"]))
@@ -28,8 +27,8 @@ def register_():
       #check if user doesn't aready exist
       #TODO change he email field to actual email table field
       if len(Personne.where("`email` = '{}'".format(answers["email"]))) > 0: 
-         print("A user with the email {} already exists....".format(answers["email"]))
-         input("Press enter to continue...")
+         print("Un utilisateur avec l'email {} existe déjà...\n\n".format(answers["email"]))
+         
       else:
          break
 
@@ -42,12 +41,15 @@ def register_():
    
    adresse = Addresse.create(**get_address())
    
-   p = Personne.create(**answers)
+   p = Personne(**answers)
    p.adresse_id = adresse.id
-
+   p.save()
    logging.debug("personne %s", p)
    g = Gui()
    g.user = p
+   print("Utilisateur crée avec succès!")
+   Page.wait_input()
+   return True
 
 register_page = Page("Enregistrer un nouvelle utilisateur")
 register_page.set_main(register_)
